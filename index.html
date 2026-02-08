@@ -1,404 +1,387 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Modern Güneş Sistemi — Etkileşimli</title>
-<style>
-  :root{
-    --panel-bg: rgba(255,255,255,0.06);
-    --accent: #9be7ff;
-    --glass-border: rgba(255,255,255,0.08);
-    --ui-radius: 12px;
-  }
-  html,body{height:100%;margin:0;font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-  body{background: #000; color:#e6f7ff; overflow:hidden; -webkit-font-smoothing:antialiased;}
-  canvas{display:block; width:100vw; height:100vh;}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aerodinamik Dergi | Modern Vitrin</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1e2430;
+      --muted: #657186;
+      --accent: #3a7bff;
+      --accent-2: #7a5cff;
+      --border: #e6eaf2;
+      --shadow: 0 10px 30px rgba(31, 40, 55, 0.1);
+    }
 
-  /* Top-right time */
-  #timeBox{
-    position:fixed; right:18px; top:18px; z-index:60;
-    background:var(--panel-bg); border:1px solid var(--glass-border);
-    padding:10px 14px; border-radius:10px; backdrop-filter: blur(6px);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
-    font-weight:600; letter-spacing:0.6px;
-  }
+    body.dark {
+      --bg: #0f1420;
+      --panel: #161e2e;
+      --text: #f4f8ff;
+      --muted: #a8b4ca;
+      --accent: #6ea8ff;
+      --accent-2: #a88bff;
+      --border: #273246;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
 
-  /* Left controls */
-  #controls{
-    position:fixed; left:18px; top:18px; z-index:60;
-    display:flex; gap:8px; align-items:center;
-    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-    padding:10px; border-radius:12px; border:1px solid var(--glass-border);
-    backdrop-filter: blur(6px);
-  }
-  .btn{
-    background:transparent; border:1px solid rgba(255,255,255,0.08);
-    color:var(--accent); padding:8px 12px; border-radius:8px; cursor:pointer;
-    font-weight:600;
-  }
-  .btn.ghost{ color:#fff; background:transparent; border:1px dashed rgba(255,255,255,0.05); }
-  .btn:active{ transform:translateY(1px); }
-  .speedLabel{ color:#cfeffd; font-weight:600; margin-left:6px; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; }
+    body { background: radial-gradient(circle at 20% -10%, rgba(122,92,255,0.15), transparent 30%), var(--bg); color: var(--text); }
 
-  /* Modal info */
-  #modal {
-    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.98);
-    min-width:320px; max-width:420px; z-index:120; display:none;
-    background: linear-gradient(180deg, rgba(10,12,20,0.96), rgba(6,8,12,0.96));
-    border-radius:14px; padding:18px; box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-    border:1px solid rgba(255,255,255,0.06);
-  }
-  #modal h3{ margin:0 0 8px 0; color:var(--accent); }
-  #modal p{ margin:0 0 12px 0; color:#cfeffd; font-size:14px; line-height:1.3; }
-  #modal .actions{ display:flex; gap:8px; justify-content:flex-end; }
-  a.linkOut{
-    background:linear-gradient(90deg,var(--accent),#7bd3ff); color:#012; padding:8px 12px; border-radius:8px;
-    font-weight:700; text-decoration:none;
-  }
+    .container { width: min(1100px, 92%); margin: 0 auto; }
 
-  /* small hint */
-  #hint{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:60;
-    background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:999px; border:1px solid var(--glass-border); color:#cfeffd; font-size:13px; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: color-mix(in oklab, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
 
-  /* Make it responsive */
-  @media (max-width:520px){
-    #controls{ flex-direction:column; left:12px; top:12px; padding:8px; }
-    #timeBox{ right:12px; top:12px; padding:8px 10px; font-size:14px; }
-    #modal{ width:92%; max-width:92%; padding:14px; }
-  }
-</style>
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand span { color: var(--accent); }
+
+    nav a {
+      text-decoration: none;
+      color: var(--text);
+      margin: 0 10px;
+      font-weight: 600;
+      font-size: .95rem;
+    }
+
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    button, .btn {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: white;
+      border: 0;
+    }
+
+    section { padding: 52px 0; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .hero h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.6rem); }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    .auth-grid {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 10px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    textarea { min-height: 110px; resize: vertical; }
+
+    .section-title { margin: 0 0 16px; font-size: 1.5rem; }
+
+    .mag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .mag-cover {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      background: #d5deee;
+    }
+
+    .meta { color: var(--muted); font-size: .9rem; }
+
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding: 24px 0 40px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .auth-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+  <header>
+    <div class="container nav">
+      <div class="brand">Aero<span>dinamik</span> Dergi</div>
+      <nav>
+        <a href="#menu">Menü</a>
+        <a href="#dergiler">Dergilerim</a>
+        <a href="#iletisim">İletişim</a>
+      </nav>
+      <div class="actions">
+        <button id="themeBtn">🌙 Karanlık Mod</button>
+        <button id="loginBtn">Giriş</button>
+        <button id="registerBtn" class="btn-primary">Kayıt</button>
+      </div>
+    </div>
+  </header>
 
-<div id="timeBox">2000 / 01 / 01</div>
+  <main class="container">
+    <section id="menu" class="hero">
+      <div class="card">
+        <h1>Aerodinamik Dergi Vitrini</h1>
+        <p>
+          Bu modern Türkçe sitede kendi yazdığın Aerodinamik dergilerini sergileyebilirsin.
+          Dergiler PDF olarak yayınlanmaz; sadece kapak görseli ve kısa açıklama ile vitrinlenir.
+          Yalnızca yönetici hesabı yeni dergi ekleyebilir.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Yönetici Paneli</h3>
+        <p class="meta" style="margin-top:0">Sadece sen giriş yaptığında dergi yükleme formu görünür.</p>
+        <div id="adminOnly" class="hidden">
+          <input id="magTitle" placeholder="Dergi adı" />
+          <input id="magCover" placeholder="Kapak görseli URL'si" />
+          <textarea id="magDesc" placeholder="Kısa açıklama"></textarea>
+          <button class="btn-primary" id="addMagBtn">Dergi Ekle</button>
+        </div>
+        <div id="adminHint" class="meta">Yükleme yapmak için önce yönetici olarak giriş yap.</div>
+      </div>
+    </section>
 
-<div id="controls" aria-hidden="false">
-  <button id="toggle" class="btn">Durdur</button>
-  <button id="slow" class="btn ghost">0.5×</button>
-  <button id="norm" class="btn ghost">1×</button>
-  <button id="fast" class="btn ghost">2×</button>
-  <div class="speedLabel" id="speedLbl">1×</div>
-</div>
+    <section id="dergiler">
+      <h2 class="section-title">Dergilerim</h2>
+      <div id="magList" class="mag-grid"></div>
+    </section>
 
-<div id="modal" role="dialog" aria-modal="true">
-  <h3 id="modalTitle">Başlık</h3>
-  <p id="modalText">Bilgi</p>
-  <div class="actions">
-    <a id="modalWiki" class="linkOut" href="#" target="_blank" rel="noopener">Wikipedia</a>
-    <button id="modalClose" class="btn ghost">Kapat</button>
-  </div>
-</div>
+    <section id="iletisim">
+      <h2 class="section-title">İletişim Formu</h2>
+      <div class="card">
+        <input id="contactName" placeholder="Ad Soyad" />
+        <input id="contactMail" type="email" placeholder="E-posta" />
+        <textarea id="contactMsg" placeholder="Mesajın"></textarea>
+        <button class="btn-primary" id="sendBtn">Gönder</button>
+        <p id="contactStatus" class="meta"></p>
+      </div>
+    </section>
 
-<div id="hint">Gezegene ya da Güneş'e tıklayın — detaylı sayfa açmak için "Wikipedia" butonuna tıklayın.</div>
+    <section id="authSection" class="auth-grid">
+      <div class="card hidden" id="loginCard">
+        <h3>Giriş</h3>
+        <input id="loginUser" placeholder="Kullanıcı adı" />
+        <input id="loginPass" type="password" placeholder="Şifre" />
+        <button class="btn-primary" id="doLogin">Giriş Yap</button>
+        <p id="loginStatus" class="meta"></p>
+      </div>
+      <div class="card hidden" id="registerCard">
+        <h3>Kayıt</h3>
+        <input id="regUser" placeholder="Kullanıcı adı" />
+        <input id="regPass" type="password" placeholder="Şifre" />
+        <button class="btn-primary" id="doRegister">Kayıt Ol</button>
+        <p id="registerStatus" class="meta"></p>
+      </div>
+    </section>
+  </main>
 
-<script>
-/* --------------------------
-   Modern 2D solar-system
-   - procedural planet textures (no external images)
-   - starfield background
-   - time controls, modal with link
-   ---------------------------*/
+  <footer>
+    © <span id="year"></span> Aerodinamik Dergi — Modern kişisel vitrin sitesi.
+  </footer>
 
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d', { alpha: true });
-let DPR = Math.min(window.devicePixelRatio || 1, 2);
+  <script>
+    const ADMIN_USER = "admin-aerodinamik";
+    const ADMIN_PASS = "aero123";
 
-function resize(){
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.floor(window.innerWidth * DPR);
-  canvas.height = Math.floor(window.innerHeight * DPR);
-  canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-}
-window.addEventListener('resize', resize);
-resize();
+    const magListEl = document.getElementById("magList");
+    const adminOnly = document.getElementById("adminOnly");
+    const adminHint = document.getElementById("adminHint");
 
-/* Starfield */
-const stars = [];
-const STAR_COUNT = Math.round((window.innerWidth*window.innerHeight)/40000);
-for(let i=0;i<STAR_COUNT;i++){
-  stars.push({
-    x: Math.random()*window.innerWidth,
-    y: Math.random()*window.innerHeight,
-    r: Math.random()*1.2 + 0.2,
-    a: Math.random()*0.9 + 0.1,
-    tw: Math.random()*0.02 + 0.002
-  });
-}
+    const state = {
+      isAdmin: false,
+      magazines: JSON.parse(localStorage.getItem("aero-magazines") || "null") || [
+        {
+          title: "Aerodinamik Sayı 01",
+          cover: "https://images.unsplash.com/photo-1519791883288-dc8bd696e667?q=80&w=1200&auto=format&fit=crop",
+          desc: "İlk sayıda uçuş prensipleri ve aerodinamik tasarımın temelleri ele alındı."
+        },
+        {
+          title: "Aerodinamik Sayı 02",
+          cover: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1200&auto=format&fit=crop",
+          desc: "Kanat profilleri, sürükleme azaltma ve modern hava araçları üzerine kısa inceleme."
+        }
+      ],
+      users: JSON.parse(localStorage.getItem("aero-users") || "[]")
+    };
 
-/* time */
-let year=2000, month=1, day=1;
-const timeBox = document.getElementById('timeBox');
-function formatTime(){ return `${year} / ${String(month).padStart(2,'0')} / ${String(Math.floor(day)).padStart(2,'0')}`; }
-timeBox.textContent = formatTime();
-
-/* planets definitions (scaled for view) */
-const sun = { name:'Güneş', r:52, color:'#ffeb99', wiki:'https://tr.wikipedia.org/wiki/Güneş', info:'Güneş, Güneş Sistemi’nin merkezinde yer alan yıldızdır.' };
-const planets = [
-  { name:'Merkür', r:6, a:70, speed:0.043, color:'#b6b6b6', wiki:'https://tr.wikipedia.org/wiki/Merkür', info:'Merkür, küçük ve kayalık.' },
-  { name:'Venüs', r:11, a:100, speed:0.035, color:'#f2c27b', wiki:'https://tr.wikipedia.org/wiki/Venüs', info:'Venüs; sıcak, kalın atmosferi ile bilinir.' },
-  { name:'Dünya', r:13, a:140, speed:0.025, color:'#4aa3ff', wiki:'https://tr.wikipedia.org/wiki/Dünya', info:'Dünya, yaşam barındıran gezegenimiz.' },
-  { name:'Mars', r:10, a:180, speed:0.019, color:'#e05a4b', wiki:'https://tr.wikipedia.org/wiki/Mars', info:'Mars, kırmızı topraklarıyla meşhurdur.' },
-  { name:'Jüpiter', r:28, a:240, speed:0.01, color:'#f1b06d', wiki:'https://tr.wikipedia.org/wiki/Jüpiter', info:'Jüpiter, en büyük gezegendir.' },
-  { name:'Satürn', r:24, a:300, speed:0.007, color:'#efd59a', wiki:'https://tr.wikipedia.org/wiki/Satürn', info:'Satürn, belirgin halkalarıyla ünlüdür.', ring:true },
-  { name:'Uranüs', r:20, a:360, speed:0.005, color:'#9fe0ff', wiki:'https://tr.wikipedia.org/wiki/Uranüs', info:'Uranüs, eğik ekseniyle dikkat çeker.' },
-  { name:'Neptün', r:18, a:420, speed:0.004, color:'#638dff', wiki:'https://tr.wikipedia.org/wiki/Neptün', info:'Neptün, uzak ve soğuk bir gaz devidir.' }
-];
-
-/* add fixed start angles for 2000-01-01 */
-const initialAngles2000 = {
-  'Merkür': 1.15,   // ~66°
-  'Venüs': 5.99,    // ~343°
-  'Dünya': 4.89,    // ~280°
-  'Mars': 2.11,     // ~121°
-  'Jüpiter': 2.79,  // ~160°
-  'Satürn': 2.34,   // ~134°
-  'Uranüs': 5.16,   // ~296°
-  'Neptün': 5.40    // ~309°
-};
-planets.forEach(p => {
-  p.angle = initialAngles2000[p.name] || 0;
-});
-
-/* UI controls */
-const toggle = document.getElementById('toggle');
-const slow = document.getElementById('slow');
-const norm = document.getElementById('norm');
-const fast = document.getElementById('fast');
-const speedLbl = document.getElementById('speedLbl');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-const modalText = document.getElementById('modalText');
-const modalWiki = document.getElementById('modalWiki');
-const modalClose = document.getElementById('modalClose');
-
-let running = true;
-let speedMultiplier = 1;
-let lastTick = performance.now();
-
-toggle.addEventListener('click', () => {
-  running = !running;
-  toggle.textContent = running ? 'Durdur' : 'Başlat';
-});
-
-slow.addEventListener('click', ()=> setSpeed(0.5));
-norm.addEventListener('click', ()=> setSpeed(1));
-fast.addEventListener('click', ()=> setSpeed(2));
-function setSpeed(v){ speedMultiplier = v; speedLbl.textContent = v + '×'; }
-
-/* make a procedural texture for planets using Offscreen canvas (or hidden canvas) */
-function makePlanetPattern(color, size){
-  const c = document.createElement('canvas');
-  c.width = c.height = size*2;
-  const g = c.getContext('2d');
-  // base radial
-  const rg = g.createRadialGradient(size, size, size*0.1, size, size, size);
-  rg.addColorStop(0, lighten(color,0.18));
-  rg.addColorStop(0.6, color);
-  rg.addColorStop(1, darken(color,0.12));
-  g.fillStyle = rg;
-  g.fillRect(0,0,c.width,c.height);
-
-  // add subtle noise dots
-  for(let i=0;i<250;i++){
-    const x = Math.random()*c.width;
-    const y = Math.random()*c.height;
-    const r = Math.random()*1.6;
-    g.fillStyle = 'rgba(255,255,255,' + (Math.random()*0.06) + ')';
-    g.beginPath(); g.arc(x,y,r,0,Math.PI*2); g.fill();
-  }
-  // slight overlay bands (for gas giants)
-  for(let i=0;i<3;i++){
-    g.fillStyle = hexToRgba(darken(color, 0.08 + i*0.02), 0.06);
-    g.fillRect(0, Math.floor(c.height*(0.2 + i*0.25)), c.width, Math.floor(c.height*0.08));
-  }
-
-  return g.createPattern(c, 'no-repeat');
-}
-
-/* small color helpers */
-function hexToRgb(hex){
-  const h = hex.replace('#','');
-  return { r: parseInt(h.substring(0,2),16), g: parseInt(h.substring(2,4),16), b: parseInt(h.substring(4,6),16) };
-}
-function rgbToHex(r,g,b){ return '#' + [r,g,b].map(v=>Math.max(0,Math.min(255, Math.round(v))).toString(16).padStart(2,'0')).join(''); }
-function lighten(hex, amount){
-  const c = hexToRgb(hex); return rgbToHex(c.r + 255*amount, c.g + 255*amount, c.b + 255*amount);
-}
-function darken(hex, amount){
-  const c = hexToRgb(hex); return rgbToHex(c.r*(1-amount), c.g*(1-amount), c.b*(1-amount));
-}
-function hexToRgba(hex,a){
-  const c=hexToRgb(hex); return `rgba(${c.r},${c.g},${c.b},${a})`;
-}
-
-/* prepare patterns */
-planets.forEach(p=>{
-  p.pattern = makePlanetPattern(p.color, Math.max(64, p.r*12));
-});
-
-/* star twinkle update */
-function updateStars(dt){
-  for(const s of stars){
-    s.a += s.tw * dt * 0.06;
-    if(s.a > 1.0) s.a = 0.1;
-  }
-}
-
-/* draw frame */
-function draw(now){
-  const dt = Math.min((now - lastTick)/16.666, 4); // rough frame multiplier
-  lastTick = now;
-
-  // background gradient
-  const w = window.innerWidth, h = window.innerHeight;
-  const bg = ctx.createLinearGradient(0,0,0,h);
-  bg.addColorStop(0,'#000010');
-  bg.addColorStop(1,'#000814');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0,0,w,h);
-
-  // stars
-  ctx.save();
-  for(const s of stars){
-    ctx.beginPath();
-    ctx.globalAlpha = s.a;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(s.x, s.y, s.r, s.r);
-  }
-  ctx.globalAlpha = 1;
-  ctx.restore();
-
-  // center of system
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
-
-  // draw orbits
-  ctx.save();
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  for(const p of planets){
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, p.a, p.a, 0, 0, Math.PI*2);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // sun glow
-  const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, sun.r*4);
-  sunGlow.addColorStop(0,'rgba(255,235,150,0.25)');
-  sunGlow.addColorStop(1,'rgba(255,235,150,0)');
-  ctx.fillStyle = sunGlow; ctx.beginPath(); ctx.arc(cx, cy, sun.r*4, 0, Math.PI*2); ctx.fill();
-
-  // draw sun
-  ctx.beginPath(); ctx.fillStyle = sun.color; ctx.arc(cx,cy,sun.r,0,Math.PI*2); ctx.fill();
-
-  // planets
-  for(const p of planets){
-    // orbit movement
-    p.angle += (running ? p.speed * speedMultiplier * 0.5 * dt : 0);
-
-    const x = cx + p.a * Math.cos(p.angle);
-    const y = cy + p.a * Math.sin(p.angle);
-    p.x = x; p.y = y;
-
-    // draw planet with pattern, add subtle shadow
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(x, y, p.r, 0, Math.PI*2);
-    ctx.closePath();
-    ctx.fillStyle = p.pattern;
-    ctx.fill();
-
-    // highlight
-    const grad = ctx.createRadialGradient(x - p.r*0.4, y - p.r*0.4, p.r*0.12, x, y, p.r);
-    grad.addColorStop(0,'rgba(255,255,255,0.5)');
-    grad.addColorStop(0.6,'rgba(255,255,255,0.08)');
-    grad.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(x,y,p.r,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-
-    // ring for Saturn (tilted)
-    if(p.ring){
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(x, y, p.r*2.1, p.r*0.7, Math.PI/5, 0, Math.PI*2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
+    function saveMagazines() {
+      localStorage.setItem("aero-magazines", JSON.stringify(state.magazines));
     }
-  }
 
-  // update time if running
-  if(running){
-    // advance day by fraction depending on speedMultiplier & dt
-    day += (0.5 * speedMultiplier * dt); // tweak: bigger = faster calendar advance
-    if(day > 30){
-      day = day - 30;
-      month += 1;
-      if(month > 12){ month = 1; year += 1; }
+    function saveUsers() {
+      localStorage.setItem("aero-users", JSON.stringify(state.users));
     }
-    timeBox.textContent = formatTime();
-  }
 
-  updateStars(dt);
-
-  requestAnimationFrame(draw);
-}
-
-/* click to open modal + link */
-canvas.addEventListener('click', (ev) => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = (ev.clientX - rect.left);
-  const my = (ev.clientY - rect.top);
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
-
-  // check sun
-  const dSun = Math.hypot(mx - cx, my - cy);
-  if(dSun <= sun.r){
-    openModal(sun.name, sun.info, sun.wiki);
-    return;
-  }
-
-  for(const p of planets){
-    const d = Math.hypot(mx - p.x, my - p.y);
-    if(d <= p.r + 2){
-      openModal(p.name, p.info, p.wiki);
-      return;
+    function renderMagazines() {
+      magListEl.innerHTML = "";
+      state.magazines.forEach((mag) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <img class="mag-cover" src="${mag.cover}" alt="${mag.title} kapak görseli" loading="lazy" />
+          <h3 style="margin:0 0 6px">${mag.title}</h3>
+          <p class="meta">${mag.desc}</p>
+        `;
+        magListEl.appendChild(card);
+      });
     }
-  }
-});
 
-function openModal(title, text, wiki){
-  modalTitle.textContent = title;
-  modalText.textContent = text;
-  modalWiki.href = wiki;
-  modal.style.display = 'block';
-  modal.style.transform = 'translate(-50%,-50%) scale(1)';
-}
-modalClose.addEventListener('click', ()=>{ modal.style.display = 'none'; });
+    function syncAdminView() {
+      adminOnly.classList.toggle("hidden", !state.isAdmin);
+      adminHint.classList.toggle("hidden", state.isAdmin);
+      adminHint.textContent = state.isAdmin
+        ? "Yönetici olarak giriş yapıldı."
+        : "Yükleme yapmak için önce yönetici olarak giriş yap.";
+    }
 
-/* keyboard shortcuts */
-window.addEventListener('keydown', (e) => {
-  if(e.key === ' '){ running = !running; toggle.textContent = running ? 'Durdur' : 'Başlat'; }
-  if(e.key === '+' || e.key === '=') setSpeed(Math.min(2, speedMultiplier + 0.5));
-  if(e.key === '-') setSpeed(Math.max(0.5, speedMultiplier - 0.5));
-});
+    document.getElementById("addMagBtn").addEventListener("click", () => {
+      if (!state.isAdmin) return;
+      const title = document.getElementById("magTitle").value.trim();
+      const cover = document.getElementById("magCover").value.trim();
+      const desc = document.getElementById("magDesc").value.trim();
 
-/* start rendering */
-requestAnimationFrame(draw);
+      if (!title || !cover || !desc) {
+        alert("Lütfen tüm alanları doldur.");
+        return;
+      }
 
-/* initialize labels */
-speedLbl.textContent = speedMultiplier + '×';
+      state.magazines.unshift({ title, cover, desc });
+      saveMagazines();
+      renderMagazines();
+      document.getElementById("magTitle").value = "";
+      document.getElementById("magCover").value = "";
+      document.getElementById("magDesc").value = "";
+    });
 
-/* helpful functions done earlier exist above (hexToRgb etc.) */
+    const loginCard = document.getElementById("loginCard");
+    const registerCard = document.getElementById("registerCard");
 
-/* Keep modal hidden on first load */
-modal.style.display = 'none';
-</script>
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      loginCard.classList.toggle("hidden");
+      registerCard.classList.add("hidden");
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+
+    document.getElementById("registerBtn").addEventListener("click", () => {
+      registerCard.classList.toggle("hidden");
+      loginCard.classList.add("hidden");
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+
+    document.getElementById("doRegister").addEventListener("click", () => {
+      const user = document.getElementById("regUser").value.trim();
+      const pass = document.getElementById("regPass").value.trim();
+      const out = document.getElementById("registerStatus");
+
+      if (!user || !pass) {
+        out.textContent = "Kullanıcı adı ve şifre zorunlu.";
+        return;
+      }
+      if (state.users.some(u => u.user === user)) {
+        out.textContent = "Bu kullanıcı adı zaten kayıtlı.";
+        return;
+      }
+      state.users.push({ user, pass });
+      saveUsers();
+      out.textContent = "Kayıt başarılı. Artık giriş yapabilirsin.";
+    });
+
+    document.getElementById("doLogin").addEventListener("click", () => {
+      const user = document.getElementById("loginUser").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+      const out = document.getElementById("loginStatus");
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        state.isAdmin = true;
+        out.textContent = "Yönetici girişi başarılı.";
+        syncAdminView();
+        return;
+      }
+
+      const exists = state.users.some(u => u.user === user && u.pass === pass);
+      if (exists) {
+        out.textContent = "Giriş başarılı. Hoş geldin!";
+      } else {
+        out.textContent = "Kullanıcı adı veya şifre hatalı.";
+      }
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("aero-theme", document.body.classList.contains("dark") ? "dark" : "light");
+    });
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const n = document.getElementById("contactName").value.trim();
+      const m = document.getElementById("contactMail").value.trim();
+      const msg = document.getElementById("contactMsg").value.trim();
+      const out = document.getElementById("contactStatus");
+      out.textContent = n && m && msg
+        ? "Mesajın alındı. En kısa sürede dönüş yapılacak."
+        : "Lütfen iletişim formundaki tüm alanları doldur.";
+    });
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    if (localStorage.getItem("aero-theme") === "dark") {
+      document.body.classList.add("dark");
+    }
+
+    renderMagazines();
+    syncAdminView();
+  </script>
 </body>
 </html>
