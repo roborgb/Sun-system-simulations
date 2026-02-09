@@ -74,11 +74,7 @@
     .brand { font-weight: 800; letter-spacing: .3px; }
     .brand span { color: var(--accent); }
 
-    .top-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .top-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .tab-btn,
     button,
@@ -117,11 +113,7 @@
 
     main { padding: 42px 0 20px; }
 
-    .page {
-      display: none;
-      animation: fadeUp .45s ease;
-    }
-
+    .page { display: none; animation: fadeUp .45s ease; }
     .page.active { display: block; }
 
     .card {
@@ -138,6 +130,8 @@
       gap: 20px;
       align-items: start;
     }
+
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .hero h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.6rem); }
     .hero p { margin: 0; color: var(--muted); line-height: 1.55; }
@@ -175,14 +169,15 @@
       background: #d5deee;
       transition: .3s transform;
     }
-
     .card:hover .mag-cover { transform: scale(1.02); }
 
-    .mag-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 10px;
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--border);
+      margin-bottom: 12px;
     }
 
     footer {
@@ -194,7 +189,7 @@
     }
 
     @media (max-width: 860px) {
-      .hero { grid-template-columns: 1fr; }
+      .hero, .grid2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -207,11 +202,11 @@
         <button class="tab-btn active" data-page="menu">Ana Menü</button>
         <button class="tab-btn" data-page="dergiler">Dergilerim</button>
         <button class="tab-btn" data-page="iletisim">İletişim</button>
+        <button class="tab-btn" data-page="profil">Profilim</button>
       </div>
 
       <div class="actions">
         <button id="themeBtn">🌙 Karanlık Mod</button>
-        <button id="loginBtn">Giriş</button>
       </div>
     </div>
   </header>
@@ -229,24 +224,31 @@
         </div>
 
         <div class="card">
-          <div id="adminOnly" class="hidden">
-            <p class="meta" style="margin-top:0">Yönetici olarak giriş yapıldı. Buradan dergi ekleyebilirsin.</p>
+          <div class="grid2">
+            <div>
+              <h3 style="margin-top:0">Giriş</h3>
+              <input id="loginUser" placeholder="Kullanıcı adı" />
+              <input id="loginPass" type="password" placeholder="Şifre" />
+              <button class="btn-primary" id="doLogin">Giriş Yap</button>
+              <p id="loginStatus" class="meta"></p>
+            </div>
+            <div>
+              <h3 style="margin-top:0">Kayıt</h3>
+              <input id="regUser" placeholder="Yeni kullanıcı adı" />
+              <input id="regPass" type="password" placeholder="Yeni şifre" />
+              <button class="btn" id="doRegister">Kayıt Ol</button>
+              <p id="registerStatus" class="meta"></p>
+            </div>
+          </div>
+          <div id="adminOnly" class="hidden" style="margin-top:10px;">
+            <p class="meta">Yönetici olarak giriş yapıldı. Buradan dergi ekleyebilirsin.</p>
             <input id="magTitle" placeholder="Dergi adı" />
             <input id="magCover" placeholder="Kapak görseli URL'si" />
             <textarea id="magDesc" placeholder="Kısa açıklama"></textarea>
             <button class="btn-primary" id="addMagBtn">Dergi Ekle</button>
           </div>
-
-          <div id="adminHint" class="meta">Yönetici işlemleri için giriş yapmalısın.</div>
+          <div id="adminHint" class="meta">Yönetici işlemleri için kullanıcı adı: Ogeday1453 ve şifre: CAM.@7 ile giriş yap.</div>
         </div>
-      </div>
-
-      <div class="card hidden" id="loginCard" style="margin-top:16px; max-width:420px;">
-        <h3 style="margin-top:0">Admin Girişi</h3>
-        <input id="loginUser" placeholder="Kullanıcı adı" />
-        <input id="loginPass" type="password" placeholder="Şifre" />
-        <button class="btn-primary" id="doLogin">Giriş Yap</button>
-        <p id="loginStatus" class="meta"></p>
       </div>
     </section>
 
@@ -266,6 +268,24 @@
         <p id="contactStatus" class="meta"></p>
       </div>
     </section>
+
+    <section id="profil" class="page">
+      <h2 class="section-title">Profilim</h2>
+      <div class="card" id="profileGuest">
+        <p class="meta">Profil görmek için önce kayıt ol veya giriş yap.</p>
+      </div>
+      <div class="card hidden" id="profileCard">
+        <img id="profileAvatar" class="profile-avatar" src="https://via.placeholder.com/120x120.png?text=A" alt="Profil fotoğrafı" />
+        <h3 id="profileName" style="margin-top:0"></h3>
+        <input id="avatarInput" placeholder="Yeni profil fotoğrafı URL'si" />
+        <button class="btn" id="changeAvatarBtn">Profil Fotosunu Değiştir</button>
+        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn" id="logoutBtn">Çıkış Yap</button>
+          <button class="btn" id="deleteProfileBtn">Profili Sil</button>
+        </div>
+        <p id="profileStatus" class="meta"></p>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -275,9 +295,12 @@
   <script>
     const ADMIN_USER = "Ogeday1453";
     const ADMIN_PASS = "CAM.@7";
+    const DEFAULT_AVATAR = "https://via.placeholder.com/120x120.png?text=A";
 
     const state = {
       isAdmin: false,
+      currentUser: JSON.parse(localStorage.getItem("aero-current-user") || "null"),
+      users: JSON.parse(localStorage.getItem("aero-users") || "[]"),
       magazines: JSON.parse(localStorage.getItem("aero-magazines") || "[]")
     };
 
@@ -285,10 +308,26 @@
     const emptyNote = document.getElementById("emptyNote");
     const adminOnly = document.getElementById("adminOnly");
     const adminHint = document.getElementById("adminHint");
-    const loginCard = document.getElementById("loginCard");
+    const profileGuest = document.getElementById("profileGuest");
+    const profileCard = document.getElementById("profileCard");
+    const profileName = document.getElementById("profileName");
+    const profileAvatar = document.getElementById("profileAvatar");
+
+    function saveUsers() {
+      localStorage.setItem("aero-users", JSON.stringify(state.users));
+    }
 
     function saveMagazines() {
       localStorage.setItem("aero-magazines", JSON.stringify(state.magazines));
+    }
+
+    function saveCurrentUser() {
+      localStorage.setItem("aero-current-user", JSON.stringify(state.currentUser));
+    }
+
+    function switchPage(pageId) {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === pageId));
+      document.querySelectorAll(".page").forEach((page) => page.classList.toggle("active", page.id === pageId));
     }
 
     function renderMagazines() {
@@ -298,14 +337,11 @@
       state.magazines.forEach((mag, index) => {
         const card = document.createElement("article");
         card.className = "card";
-
         card.innerHTML = `
           <img class="mag-cover" src="${mag.cover}" alt="${mag.title} kapak görseli" loading="lazy" />
           <h3 style="margin:0 0 6px">${mag.title}</h3>
           <p class="meta">${mag.desc}</p>
-          <div class="mag-actions ${state.isAdmin ? "" : "hidden"}">
-            <button class="btn deleteBtn" data-index="${index}">Dergiyi Kaldır</button>
-          </div>
+          ${state.isAdmin ? `<button class="btn deleteBtn" data-index="${index}">Dergiyi Kaldır</button>` : ""}
         `;
         magListEl.appendChild(card);
       });
@@ -327,12 +363,18 @@
       renderMagazines();
     }
 
+    function syncProfileView() {
+      const hasUser = !!state.currentUser;
+      profileGuest.classList.toggle("hidden", hasUser);
+      profileCard.classList.toggle("hidden", !hasUser);
+      if (!hasUser) return;
+
+      profileName.textContent = state.currentUser.user;
+      profileAvatar.src = state.currentUser.avatar || DEFAULT_AVATAR;
+    }
+
     document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.page;
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
-        document.querySelectorAll(".page").forEach((page) => page.classList.toggle("active", page.id === target));
-      });
+      btn.addEventListener("click", () => switchPage(btn.dataset.page));
     });
 
     document.getElementById("themeBtn").addEventListener("click", () => {
@@ -340,8 +382,25 @@
       localStorage.setItem("aero-theme", document.body.classList.contains("dark") ? "dark" : "light");
     });
 
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      loginCard.classList.toggle("hidden");
+    document.getElementById("doRegister").addEventListener("click", () => {
+      const user = document.getElementById("regUser").value.trim();
+      const pass = document.getElementById("regPass").value.trim();
+      const out = document.getElementById("registerStatus");
+
+      if (!user || !pass) {
+        out.textContent = "Kullanıcı adı ve şifre zorunlu.";
+        return;
+      }
+      if (state.users.some((u) => u.user === user) || user === ADMIN_USER) {
+        out.textContent = "Bu kullanıcı adı zaten kayıtlı.";
+        return;
+      }
+
+      state.users.push({ user, pass, avatar: DEFAULT_AVATAR });
+      saveUsers();
+      out.textContent = "Kayıt başarılı. Şimdi giriş yapabilirsin.";
+      document.getElementById("regUser").value = "";
+      document.getElementById("regPass").value = "";
     });
 
     document.getElementById("doLogin").addEventListener("click", () => {
@@ -349,13 +408,29 @@
       const pass = document.getElementById("loginPass").value.trim();
       const out = document.getElementById("loginStatus");
 
+      state.isAdmin = false;
       if (user === ADMIN_USER && pass === ADMIN_PASS) {
         state.isAdmin = true;
+        state.currentUser = { user: ADMIN_USER, avatar: DEFAULT_AVATAR, isAdmin: true };
+        saveCurrentUser();
         out.textContent = "Yönetici girişi başarılı.";
         syncAdminView();
-      } else {
-        out.textContent = "Kullanıcı adı veya şifre hatalı.";
+        syncProfileView();
+        return;
       }
+
+      const found = state.users.find((u) => u.user === user && u.pass === pass);
+      if (!found) {
+        out.textContent = "Kullanıcı adı veya şifre hatalı.";
+        syncAdminView();
+        return;
+      }
+
+      state.currentUser = { user: found.user, avatar: found.avatar || DEFAULT_AVATAR, isAdmin: false };
+      saveCurrentUser();
+      out.textContent = "Giriş başarılı.";
+      syncAdminView();
+      syncProfileView();
     });
 
     document.getElementById("addMagBtn").addEventListener("click", () => {
@@ -372,10 +447,57 @@
       state.magazines.unshift({ title, cover, desc });
       saveMagazines();
       renderMagazines();
-
       document.getElementById("magTitle").value = "";
       document.getElementById("magCover").value = "";
       document.getElementById("magDesc").value = "";
+      switchPage("dergiler");
+    });
+
+    document.getElementById("changeAvatarBtn").addEventListener("click", () => {
+      if (!state.currentUser) return;
+      const url = document.getElementById("avatarInput").value.trim();
+      const out = document.getElementById("profileStatus");
+      if (!url) {
+        out.textContent = "Lütfen bir görsel URL'si gir.";
+        return;
+      }
+
+      state.currentUser.avatar = url;
+      if (!state.currentUser.isAdmin) {
+        const idx = state.users.findIndex((u) => u.user === state.currentUser.user);
+        if (idx >= 0) state.users[idx].avatar = url;
+        saveUsers();
+      }
+      saveCurrentUser();
+      syncProfileView();
+      out.textContent = "Profil fotoğrafı güncellendi.";
+      document.getElementById("avatarInput").value = "";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      state.currentUser = null;
+      state.isAdmin = false;
+      localStorage.removeItem("aero-current-user");
+      syncAdminView();
+      syncProfileView();
+      switchPage("menu");
+    });
+
+    document.getElementById("deleteProfileBtn").addEventListener("click", () => {
+      const out = document.getElementById("profileStatus");
+      if (!state.currentUser || state.currentUser.isAdmin) {
+        out.textContent = "Admin profili silinemez.";
+        return;
+      }
+
+      state.users = state.users.filter((u) => u.user !== state.currentUser.user);
+      saveUsers();
+      state.currentUser = null;
+      localStorage.removeItem("aero-current-user");
+      state.isAdmin = false;
+      syncAdminView();
+      syncProfileView();
+      switchPage("menu");
     });
 
     document.getElementById("sendBtn").addEventListener("click", () => {
@@ -383,7 +505,6 @@
       const m = document.getElementById("contactMail").value.trim();
       const msg = document.getElementById("contactMsg").value.trim();
       const out = document.getElementById("contactStatus");
-
       out.textContent = n && m && msg
         ? "Mesajın alındı. En kısa sürede dönüş yapılacak."
         : "Lütfen iletişim formundaki tüm alanları doldur.";
@@ -395,8 +516,13 @@
       document.body.classList.add("dark");
     }
 
+    if (state.currentUser && state.currentUser.user === ADMIN_USER) {
+      state.isAdmin = true;
+    }
+
     renderMagazines();
     syncAdminView();
+    syncProfileView();
   </script>
 </body>
 </html>
