@@ -15,7 +15,6 @@
       --border: #e6eaf2;
       --shadow: 0 12px 34px rgba(31, 40, 55, 0.12);
     }
-
     body.dark {
       --bg: #0f1420;
       --panel: #161e2e;
@@ -26,188 +25,66 @@
       --border: #273246;
       --shadow: 0 12px 34px rgba(0, 0, 0, 0.38);
     }
-
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; }
-    body {
-      background: radial-gradient(circle at 15% -10%, rgba(122, 92, 255, 0.2), transparent 35%), var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
+    body { background: radial-gradient(circle at 15% -10%, rgba(122, 92, 255, 0.2), transparent 35%), var(--bg); color: var(--text); min-height: 100vh; }
     .container { width: min(1100px, 92%); margin: 0 auto; }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(10px);
-      background: color-mix(in oklab, var(--bg) 85%, transparent);
-      border-bottom: 1px solid var(--border);
-      animation: slideDown .7s ease;
-    }
+    header { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px); background: color-mix(in oklab, var(--bg) 85%, transparent); border-bottom: 1px solid var(--border); animation: slideDown .7s ease; }
+    @keyframes slideDown { from { transform: translateY(-22px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 rgba(58,123,255,0); } 50% { box-shadow: 0 0 26px rgba(58,123,255,.22); } }
 
-    @keyframes slideDown {
-      from { transform: translateY(-22px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes fadeUp {
-      from { transform: translateY(12px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 0 rgba(58, 123, 255, 0); }
-      50% { box-shadow: 0 0 26px rgba(58, 123, 255, .22); }
-    }
-
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 0;
-      flex-wrap: wrap;
-    }
-
+    .nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; flex-wrap: wrap; }
     .brand { font-weight: 800; letter-spacing: .3px; }
     .brand span { color: var(--accent); }
 
-    .top-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .tab-btn,
-    button,
-    .btn {
-      border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: .25s transform, .25s background, .25s color, .25s border;
-    }
-
-    .tab-btn:hover,
-    button:hover,
-    .btn:hover {
-      transform: translateY(-1px);
-      border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
-    }
-
-    .tab-btn.active {
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: white;
-      border-color: transparent;
-      animation: pulseGlow 1.6s ease-in-out infinite;
-    }
-
-    .btn-primary {
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: white;
-      border: 0;
-    }
-
-    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .top-tabs, .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab-btn, button, .btn { border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: .25s transform, .25s background, .25s border; }
+    .tab-btn:hover, button:hover, .btn:hover { transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent) 55%, var(--border)); }
+    .tab-btn.active { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: white; border-color: transparent; animation: pulseGlow 1.6s ease-in-out infinite; }
+    .btn-primary { background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: white; border: 0; }
 
     main { padding: 42px 0 20px; }
-
     .page { display: none; animation: fadeUp .45s ease; }
     .page.active { display: block; }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 18px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; }
+    .hero { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; align-items: start; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .hero h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.6rem); }
     .hero p { margin: 0; color: var(--muted); line-height: 1.55; }
-
     .section-title { margin: 0 0 16px; font-size: 1.5rem; }
 
-    input, textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-
+    input, textarea { width: 100%; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
     textarea { min-height: 110px; resize: vertical; }
 
     .meta { color: var(--muted); font-size: .92rem; }
     .hidden { display: none !important; }
 
-    .mag-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    .mag-cover {
-      width: 100%;
-      aspect-ratio: 4 / 5;
-      object-fit: cover;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      margin-bottom: 12px;
-      background: #d5deee;
-      transition: .3s transform;
-    }
+    .mag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .mag-cover { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; background: #d5deee; transition: .3s transform; }
     .card:hover .mag-cover { transform: scale(1.02); }
 
-    .profile-avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--border);
-      margin-bottom: 12px;
-    }
+    .profile-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); margin-bottom: 12px; }
+    .list-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
 
-    footer {
-      text-align: center;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-      padding: 24px 0 40px;
-      margin-top: 26px;
-    }
-
-    @media (max-width: 860px) {
-      .hero, .grid2 { grid-template-columns: 1fr; }
-    }
+    footer { text-align: center; color: var(--muted); border-top: 1px solid var(--border); padding: 24px 0 40px; margin-top: 26px; }
+    @media (max-width: 860px) { .hero, .grid2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <header>
     <div class="container nav">
-      <div class="brand">Aero<span>dinamik</span> Dergi</div>
-
+      <div class="brand" id="brandText">Aero<span>dinamik</span> Dergi</div>
       <div class="top-tabs" role="tablist" aria-label="Sayfa sekmeleri">
         <button class="tab-btn active" data-page="menu">Ana Menü</button>
         <button class="tab-btn" data-page="dergiler">Dergilerim</button>
         <button class="tab-btn" data-page="iletisim">İletişim</button>
+        <button class="tab-btn" data-page="giris">Giriş</button>
         <button class="tab-btn" data-page="profil">Profilim</button>
       </div>
-
-      <div class="actions">
-        <button id="themeBtn">🌙 Karanlık Mod</button>
-      </div>
+      <div class="actions"><button id="themeBtn">🌙 Karanlık Mod</button></div>
     </div>
   </header>
 
@@ -215,46 +92,42 @@
     <section id="menu" class="page active">
       <div class="hero">
         <div class="card">
-          <h1>Aerodinamik Dergi Vitrini</h1>
-          <p>
-            Bu modern Türkçe sitede kendi yazdığın Aerodinamik dergilerini sergileyebilirsin.
-            Dergiler PDF olarak yayınlanmaz; sadece kapak görseli ve kısa açıklama ile vitrinlenir.
-            Yönetici girişinden sonra ekleme/silme kontrolü tamamen sende olur.
-          </p>
+          <h1 id="heroTitle">Aerodinamik Dergi Vitrini</h1>
+          <p id="heroSubtitle">Bu modern Türkçe sitede kendi yazdığın Aerodinamik dergilerini sergileyebilirsin. Dergiler PDF olarak yayınlanmaz; sadece kapak görseli ve kısa açıklama ile vitrinlenir.</p>
         </div>
-
         <div class="card">
-          <div class="grid2">
-            <div>
-              <h3 style="margin-top:0">Giriş</h3>
-              <input id="loginUser" placeholder="Kullanıcı adı" />
-              <input id="loginPass" type="password" placeholder="Şifre" />
-              <button class="btn-primary" id="doLogin">Giriş Yap</button>
-              <p id="loginStatus" class="meta"></p>
-            </div>
-            <div>
-              <h3 style="margin-top:0">Kayıt</h3>
-              <input id="regUser" placeholder="Yeni kullanıcı adı" />
-              <input id="regPass" type="password" placeholder="Yeni şifre" />
-              <button class="btn" id="doRegister">Kayıt Ol</button>
-              <p id="registerStatus" class="meta"></p>
-            </div>
-          </div>
-          <div id="adminOnly" class="hidden" style="margin-top:10px;">
-            <p class="meta">Yönetici olarak giriş yapıldı. Buradan dergi ekleyebilirsin.</p>
+          <h3 style="margin-top:0">Hikayemiz</h3>
+          <p id="storyText" class="meta">Aerodinamik, havacılık tutkusunu bilgiye dönüştüren bir dergi projesidir.</p>
+        </div>
+      </div>
+
+      <div id="adminOnly" class="card hidden" style="margin-top:16px;">
+        <h3 style="margin-top:0">Admin Kontrol Alanı</h3>
+        <div class="grid2">
+          <div>
+            <h4>Yeni Dergi Ekle</h4>
             <input id="magTitle" placeholder="Dergi adı" />
             <input id="magCover" placeholder="Kapak görseli URL'si" />
             <textarea id="magDesc" placeholder="Kısa açıklama"></textarea>
             <button class="btn-primary" id="addMagBtn">Dergi Ekle</button>
           </div>
-          <div id="adminHint" class="meta">Yönetici işlemleri için kullanıcı adı: Ogeday1453 ve şifre: CAM.@7 ile giriş yap.</div>
+          <div>
+            <h4>Ana Menü İçeriği Düzenle</h4>
+            <input id="editBrand" placeholder="Üst başlık (brand)" />
+            <input id="editHeroTitle" placeholder="Ana başlık" />
+            <textarea id="editHeroSub" placeholder="Başlık altı açıklama"></textarea>
+            <textarea id="editStory" placeholder="Hikayemiz metni"></textarea>
+            <button class="btn" id="saveHomeContentBtn">Ana Menü Değişikliklerini Kaydet</button>
+          </div>
         </div>
+        <h4 style="margin-bottom:8px;">Kayıtlı Kullanıcılar (Admin görebilir)</h4>
+        <div id="usersList"></div>
       </div>
     </section>
 
     <section id="dergiler" class="page">
       <h2 class="section-title">Dergilerim</h2>
-      <p class="meta" id="emptyNote">Henüz dergi eklenmedi. Yönetici girişi yapıp yeni dergi ekleyebilirsin.</p>
+      <p class="meta" id="emptyNote">Henüz dergi eklenmedi. Yönetici girişinden sonra dergi ekleyebilirsin.</p>
       <div id="magList" class="mag-grid"></div>
     </section>
 
@@ -269,14 +142,36 @@
       </div>
     </section>
 
+    <section id="giris" class="page">
+      <h2 class="section-title">Giriş Yap</h2>
+      <div class="card" style="max-width:460px;">
+        <input id="loginUser" placeholder="Kullanıcı adı" />
+        <input id="loginPass" type="password" placeholder="Şifre" />
+        <button class="btn-primary" id="doLogin">Giriş Yap</button>
+        <p id="loginStatus" class="meta"></p>
+        <p class="meta">Kayıt olmadın mı? <button class="btn" id="gotoRegisterBtn" style="padding:6px 10px;">Hemen Ol</button></p>
+      </div>
+    </section>
+
+    <section id="kayit" class="page">
+      <h2 class="section-title">Kayıt Ol</h2>
+      <div class="card" style="max-width:460px;">
+        <input id="regUser" placeholder="Kullanıcı adı" />
+        <input id="regMail" type="email" placeholder="E-posta" />
+        <input id="regPass" type="password" placeholder="Şifre" />
+        <input id="regPassAgain" type="password" placeholder="Şifre (tekrar)" />
+        <button class="btn" id="doRegister">Kayıt Ol</button>
+        <p id="registerStatus" class="meta"></p>
+      </div>
+    </section>
+
     <section id="profil" class="page">
       <h2 class="section-title">Profilim</h2>
-      <div class="card" id="profileGuest">
-        <p class="meta">Profil görmek için önce kayıt ol veya giriş yap.</p>
-      </div>
+      <div class="card" id="profileGuest"><p class="meta">Profil görmek için önce giriş yap.</p></div>
       <div class="card hidden" id="profileCard">
         <img id="profileAvatar" class="profile-avatar" src="https://via.placeholder.com/120x120.png?text=A" alt="Profil fotoğrafı" />
         <h3 id="profileName" style="margin-top:0"></h3>
+        <p id="profileEmail" class="meta"></p>
         <input id="avatarInput" placeholder="Yeni profil fotoğrafı URL'si" />
         <button class="btn" id="changeAvatarBtn">Profil Fotosunu Değiştir</button>
         <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
@@ -288,46 +183,58 @@
     </section>
   </main>
 
-  <footer>
-    © <span id="year"></span> Aerodinamik Dergi — Modern kişisel vitrin sitesi.
-  </footer>
+  <footer>© <span id="year"></span> Aerodinamik Dergi — Modern kişisel vitrin sitesi.</footer>
 
   <script>
     const ADMIN_USER = "Ogeday1453";
     const ADMIN_PASS = "CAM.@7";
     const DEFAULT_AVATAR = "https://via.placeholder.com/120x120.png?text=A";
+    const CONTACT_TO = "ogeday.durmus@gmail.com";
+
+    const defaultHomeContent = {
+      brandHtml: "Aero<span>dinamik</span> Dergi",
+      heroTitle: "Aerodinamik Dergi Vitrini",
+      heroSubtitle: "Bu modern Türkçe sitede kendi yazdığın Aerodinamik dergilerini sergileyebilirsin. Dergiler PDF olarak yayınlanmaz; sadece kapak görseli ve kısa açıklama ile vitrinlenir.",
+      storyText: "Aerodinamik, havacılık tutkusunu bilgiye dönüştüren bir dergi projesidir."
+    };
 
     const state = {
       isAdmin: false,
       currentUser: JSON.parse(localStorage.getItem("aero-current-user") || "null"),
       users: JSON.parse(localStorage.getItem("aero-users") || "[]"),
-      magazines: JSON.parse(localStorage.getItem("aero-magazines") || "[]")
+      magazines: JSON.parse(localStorage.getItem("aero-magazines") || "[]"),
+      homeContent: JSON.parse(localStorage.getItem("aero-home-content") || "null") || defaultHomeContent
     };
 
     const magListEl = document.getElementById("magList");
     const emptyNote = document.getElementById("emptyNote");
     const adminOnly = document.getElementById("adminOnly");
-    const adminHint = document.getElementById("adminHint");
     const profileGuest = document.getElementById("profileGuest");
     const profileCard = document.getElementById("profileCard");
     const profileName = document.getElementById("profileName");
+    const profileEmail = document.getElementById("profileEmail");
     const profileAvatar = document.getElementById("profileAvatar");
+    const usersList = document.getElementById("usersList");
 
-    function saveUsers() {
-      localStorage.setItem("aero-users", JSON.stringify(state.users));
-    }
-
-    function saveMagazines() {
-      localStorage.setItem("aero-magazines", JSON.stringify(state.magazines));
-    }
-
-    function saveCurrentUser() {
-      localStorage.setItem("aero-current-user", JSON.stringify(state.currentUser));
-    }
+    function saveUsers() { localStorage.setItem("aero-users", JSON.stringify(state.users)); }
+    function saveMagazines() { localStorage.setItem("aero-magazines", JSON.stringify(state.magazines)); }
+    function saveCurrentUser() { localStorage.setItem("aero-current-user", JSON.stringify(state.currentUser)); }
+    function saveHomeContent() { localStorage.setItem("aero-home-content", JSON.stringify(state.homeContent)); }
 
     function switchPage(pageId) {
       document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === pageId));
       document.querySelectorAll(".page").forEach((page) => page.classList.toggle("active", page.id === pageId));
+    }
+
+    function renderHomeContent() {
+      document.getElementById("brandText").innerHTML = state.homeContent.brandHtml;
+      document.getElementById("heroTitle").textContent = state.homeContent.heroTitle;
+      document.getElementById("heroSubtitle").textContent = state.homeContent.heroSubtitle;
+      document.getElementById("storyText").textContent = state.homeContent.storyText;
+      document.getElementById("editBrand").value = state.homeContent.brandHtml.replace(/<[^>]+>/g, "");
+      document.getElementById("editHeroTitle").value = state.homeContent.heroTitle;
+      document.getElementById("editHeroSub").value = state.homeContent.heroSubtitle;
+      document.getElementById("editStory").value = state.homeContent.storyText;
     }
 
     function renderMagazines() {
@@ -357,10 +264,45 @@
       });
     }
 
+    function renderUsersForAdmin() {
+      usersList.innerHTML = "";
+      if (!state.isAdmin) return;
+      if (state.users.length === 0) {
+        usersList.innerHTML = '<p class="meta">Henüz kayıtlı kullanıcı yok.</p>';
+        return;
+      }
+      state.users.forEach((u) => {
+        const row = document.createElement("div");
+        row.className = "list-item";
+        row.innerHTML = `
+          <strong>${u.user}</strong>
+          <div class="meta">E-posta: ${u.email || "-"}</div>
+          <div class="meta">Son giriş: ${u.lastLogin || "-"}</div>
+          <button class="btn removeUserBtn" data-user="${u.user}">Profili Sil (Admin)</button>
+        `;
+        usersList.appendChild(row);
+      });
+
+      document.querySelectorAll(".removeUserBtn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          if (!state.isAdmin) return;
+          const username = btn.dataset.user;
+          state.users = state.users.filter((u) => u.user !== username);
+          saveUsers();
+          if (state.currentUser && state.currentUser.user === username) {
+            state.currentUser = null;
+            saveCurrentUser();
+          }
+          renderUsersForAdmin();
+          syncProfileView();
+        });
+      });
+    }
+
     function syncAdminView() {
       adminOnly.classList.toggle("hidden", !state.isAdmin);
-      adminHint.classList.toggle("hidden", state.isAdmin);
       renderMagazines();
+      renderUsersForAdmin();
     }
 
     function syncProfileView() {
@@ -368,39 +310,35 @@
       profileGuest.classList.toggle("hidden", hasUser);
       profileCard.classList.toggle("hidden", !hasUser);
       if (!hasUser) return;
-
       profileName.textContent = state.currentUser.user;
+      profileEmail.textContent = `E-posta: ${state.currentUser.email || "-"}`;
       profileAvatar.src = state.currentUser.avatar || DEFAULT_AVATAR;
     }
 
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => switchPage(btn.dataset.page));
-    });
+    document.querySelectorAll(".tab-btn").forEach((btn) => btn.addEventListener("click", () => switchPage(btn.dataset.page)));
 
     document.getElementById("themeBtn").addEventListener("click", () => {
       document.body.classList.toggle("dark");
       localStorage.setItem("aero-theme", document.body.classList.contains("dark") ? "dark" : "light");
     });
 
+    document.getElementById("gotoRegisterBtn").addEventListener("click", () => switchPage("kayit"));
+
     document.getElementById("doRegister").addEventListener("click", () => {
       const user = document.getElementById("regUser").value.trim();
+      const email = document.getElementById("regMail").value.trim();
       const pass = document.getElementById("regPass").value.trim();
+      const pass2 = document.getElementById("regPassAgain").value.trim();
       const out = document.getElementById("registerStatus");
 
-      if (!user || !pass) {
-        out.textContent = "Kullanıcı adı ve şifre zorunlu.";
-        return;
-      }
-      if (state.users.some((u) => u.user === user) || user === ADMIN_USER) {
-        out.textContent = "Bu kullanıcı adı zaten kayıtlı.";
-        return;
-      }
+      if (!user || !email || !pass || !pass2) { out.textContent = "Tüm alanlar zorunlu."; return; }
+      if (pass !== pass2) { out.textContent = "Şifreler eşleşmiyor."; return; }
+      if (state.users.some((u) => u.user === user) || user === ADMIN_USER) { out.textContent = "Bu kullanıcı adı kullanılıyor."; return; }
 
-      state.users.push({ user, pass, avatar: DEFAULT_AVATAR });
+      state.users.push({ user, email, pass, avatar: DEFAULT_AVATAR, lastLogin: "-" });
       saveUsers();
-      out.textContent = "Kayıt başarılı. Şimdi giriş yapabilirsin.";
-      document.getElementById("regUser").value = "";
-      document.getElementById("regPass").value = "";
+      out.textContent = "Kayıt başarılı. Giriş sayfasına geçebilirsin.";
+      switchPage("giris");
     });
 
     document.getElementById("doLogin").addEventListener("click", () => {
@@ -411,26 +349,26 @@
       state.isAdmin = false;
       if (user === ADMIN_USER && pass === ADMIN_PASS) {
         state.isAdmin = true;
-        state.currentUser = { user: ADMIN_USER, avatar: DEFAULT_AVATAR, isAdmin: true };
+        state.currentUser = { user: ADMIN_USER, email: CONTACT_TO, avatar: DEFAULT_AVATAR, isAdmin: true };
         saveCurrentUser();
         out.textContent = "Yönetici girişi başarılı.";
         syncAdminView();
         syncProfileView();
+        switchPage("profil");
         return;
       }
 
-      const found = state.users.find((u) => u.user === user && u.pass === pass);
-      if (!found) {
-        out.textContent = "Kullanıcı adı veya şifre hatalı.";
-        syncAdminView();
-        return;
-      }
+      const idx = state.users.findIndex((u) => u.user === user && u.pass === pass);
+      if (idx < 0) { out.textContent = "Kullanıcı adı veya şifre hatalı."; syncAdminView(); return; }
 
-      state.currentUser = { user: found.user, avatar: found.avatar || DEFAULT_AVATAR, isAdmin: false };
+      state.users[idx].lastLogin = new Date().toLocaleString("tr-TR");
+      saveUsers();
+      state.currentUser = { user: state.users[idx].user, email: state.users[idx].email, avatar: state.users[idx].avatar || DEFAULT_AVATAR, isAdmin: false };
       saveCurrentUser();
       out.textContent = "Giriş başarılı.";
       syncAdminView();
       syncProfileView();
+      switchPage("profil");
     });
 
     document.getElementById("addMagBtn").addEventListener("click", () => {
@@ -438,40 +376,37 @@
       const title = document.getElementById("magTitle").value.trim();
       const cover = document.getElementById("magCover").value.trim();
       const desc = document.getElementById("magDesc").value.trim();
-
-      if (!title || !cover || !desc) {
-        alert("Lütfen tüm alanları doldur.");
-        return;
-      }
-
+      if (!title || !cover || !desc) { alert("Lütfen tüm alanları doldur."); return; }
       state.magazines.unshift({ title, cover, desc });
       saveMagazines();
       renderMagazines();
-      document.getElementById("magTitle").value = "";
-      document.getElementById("magCover").value = "";
-      document.getElementById("magDesc").value = "";
       switchPage("dergiler");
+    });
+
+    document.getElementById("saveHomeContentBtn").addEventListener("click", () => {
+      if (!state.isAdmin) return;
+      const brandPlain = document.getElementById("editBrand").value.trim() || "Aerodinamik Dergi";
+      state.homeContent.brandHtml = brandPlain.replace("dinamik", "<span>dinamik</span>");
+      state.homeContent.heroTitle = document.getElementById("editHeroTitle").value.trim() || defaultHomeContent.heroTitle;
+      state.homeContent.heroSubtitle = document.getElementById("editHeroSub").value.trim() || defaultHomeContent.heroSubtitle;
+      state.homeContent.storyText = document.getElementById("editStory").value.trim() || defaultHomeContent.storyText;
+      saveHomeContent();
+      renderHomeContent();
     });
 
     document.getElementById("changeAvatarBtn").addEventListener("click", () => {
       if (!state.currentUser) return;
       const url = document.getElementById("avatarInput").value.trim();
       const out = document.getElementById("profileStatus");
-      if (!url) {
-        out.textContent = "Lütfen bir görsel URL'si gir.";
-        return;
-      }
-
+      if (!url) { out.textContent = "Lütfen bir görsel URL'si gir."; return; }
       state.currentUser.avatar = url;
       if (!state.currentUser.isAdmin) {
         const idx = state.users.findIndex((u) => u.user === state.currentUser.user);
-        if (idx >= 0) state.users[idx].avatar = url;
-        saveUsers();
+        if (idx >= 0) { state.users[idx].avatar = url; saveUsers(); }
       }
       saveCurrentUser();
       syncProfileView();
       out.textContent = "Profil fotoğrafı güncellendi.";
-      document.getElementById("avatarInput").value = "";
     });
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
@@ -485,16 +420,11 @@
 
     document.getElementById("deleteProfileBtn").addEventListener("click", () => {
       const out = document.getElementById("profileStatus");
-      if (!state.currentUser || state.currentUser.isAdmin) {
-        out.textContent = "Admin profili silinemez.";
-        return;
-      }
-
+      if (!state.currentUser || state.currentUser.isAdmin) { out.textContent = "Admin profili bu butondan silinemez."; return; }
       state.users = state.users.filter((u) => u.user !== state.currentUser.user);
       saveUsers();
       state.currentUser = null;
       localStorage.removeItem("aero-current-user");
-      state.isAdmin = false;
       syncAdminView();
       syncProfileView();
       switchPage("menu");
@@ -505,21 +435,19 @@
       const m = document.getElementById("contactMail").value.trim();
       const msg = document.getElementById("contactMsg").value.trim();
       const out = document.getElementById("contactStatus");
-      out.textContent = n && m && msg
-        ? "Mesajın alındı. En kısa sürede dönüş yapılacak."
-        : "Lütfen iletişim formundaki tüm alanları doldur.";
+      if (!n || !m || !msg) { out.textContent = "Lütfen iletişim formundaki tüm alanları doldur."; return; }
+
+      const subject = encodeURIComponent(`Site İletişim Mesajı - ${n}`);
+      const body = encodeURIComponent(`Ad Soyad: ${n}\nE-posta: ${m}\n\nMesaj:\n${msg}`);
+      window.location.href = `mailto:${CONTACT_TO}?subject=${subject}&body=${body}`;
+      out.textContent = `Mesajın ${CONTACT_TO} adresine mail uygulaması üzerinden yönlendirildi.`;
     });
 
     document.getElementById("year").textContent = new Date().getFullYear();
+    if (localStorage.getItem("aero-theme") === "dark") document.body.classList.add("dark");
+    if (state.currentUser && state.currentUser.user === ADMIN_USER) state.isAdmin = true;
 
-    if (localStorage.getItem("aero-theme") === "dark") {
-      document.body.classList.add("dark");
-    }
-
-    if (state.currentUser && state.currentUser.user === ADMIN_USER) {
-      state.isAdmin = true;
-    }
-
+    renderHomeContent();
     renderMagazines();
     syncAdminView();
     syncProfileView();
