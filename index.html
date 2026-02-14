@@ -107,7 +107,8 @@
           <div>
             <h4>Yeni Dergi Ekle</h4>
             <input id="magTitle" placeholder="Dergi adı" />
-            <input id="magCover" placeholder="Kapak görseli URL'si" />
+            <input id="magCover" type="file" accept="image/png,image/jpeg,image/jpg" />
+            <p class="meta">Kapak görseli olarak PNG veya JPG yükleyebilirsin.</p>
             <textarea id="magDesc" placeholder="Kısa açıklama"></textarea>
             <button class="btn-primary" id="addMagBtn">Dergi Ekle</button>
           </div>
@@ -374,13 +375,32 @@
     document.getElementById("addMagBtn").addEventListener("click", () => {
       if (!state.isAdmin) return;
       const title = document.getElementById("magTitle").value.trim();
-      const cover = document.getElementById("magCover").value.trim();
+      const coverFile = document.getElementById("magCover").files[0];
       const desc = document.getElementById("magDesc").value.trim();
-      if (!title || !cover || !desc) { alert("Lütfen tüm alanları doldur."); return; }
-      state.magazines.unshift({ title, cover, desc });
-      saveMagazines();
-      renderMagazines();
-      switchPage("dergiler");
+
+      if (!title || !coverFile || !desc) {
+        alert("Lütfen tüm alanları doldur.");
+        return;
+      }
+
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!allowedTypes.includes(coverFile.type)) {
+        alert("Lütfen sadece PNG veya JPG dosyası yükle.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const cover = reader.result;
+        state.magazines.unshift({ title, cover, desc });
+        saveMagazines();
+        renderMagazines();
+        document.getElementById("magTitle").value = "";
+        document.getElementById("magCover").value = "";
+        document.getElementById("magDesc").value = "";
+        switchPage("dergiler");
+      };
+      reader.readAsDataURL(coverFile);
     });
 
     document.getElementById("saveHomeContentBtn").addEventListener("click", () => {
