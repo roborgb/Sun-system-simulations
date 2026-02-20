@@ -39,6 +39,7 @@
     @keyframes fadeUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 rgba(58,123,255,0); } 50% { box-shadow: 0 0 26px rgba(58,123,255,.22); } }
     @keyframes softFloat { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-3px);} }
+    @keyframes authBg { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
     .nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; flex-wrap: wrap; }
     .brand { font-weight: 800; letter-spacing: .3px; }
@@ -74,6 +75,7 @@
 
     .profile-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); margin-bottom: 12px; }
     .list-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; }
+    .auth-animated { background: linear-gradient(-45deg, color-mix(in oklab,var(--accent) 25%, var(--panel)), color-mix(in oklab,var(--accent-2) 24%, var(--panel)), var(--panel), color-mix(in oklab,var(--accent) 15%, var(--panel))); background-size: 280% 280%; animation: authBg 8s ease infinite; }
 
     footer { text-align: center; color: var(--muted); border-top: 1px solid var(--border); padding: 24px 0 40px; margin-top: 26px; }
     @media (max-width: 860px) { .hero, .grid2 { grid-template-columns: 1fr; } }
@@ -151,10 +153,15 @@
 
     <section id="giris" class="page">
       <h2 class="section-title">Giriş Yap</h2>
-      <div class="card" style="max-width:460px;">
+      <div class="card auth-animated" style="max-width:460px;">
         <input id="loginUser" placeholder="Kullanıcı adı" />
+        <input id="loginMail" type="email" placeholder="E-posta" />
         <input id="loginPass" type="password" placeholder="Şifre" />
         <button class="btn-primary" id="doLogin">Giriş Yap</button>
+        <div id="loginOtpWrap" class="hidden">
+          <input id="loginOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
+          <button class="btn" id="verifyLoginOtp">Kodu Doğrula</button>
+        </div>
         <p id="loginStatus" class="meta"></p>
         <p class="meta">Kayıt olmadın mı? <button class="btn" id="gotoRegisterBtn" style="padding:6px 10px;">Hemen Ol</button></p>
       </div>
@@ -162,12 +169,16 @@
 
     <section id="kayit" class="page">
       <h2 class="section-title">Kayıt Ol</h2>
-      <div class="card" style="max-width:460px;">
+      <div class="card auth-animated" style="max-width:460px;">
         <input id="regUser" placeholder="Kullanıcı adı" />
         <input id="regMail" type="email" placeholder="E-posta" />
         <input id="regPass" type="password" placeholder="Şifre" />
         <input id="regPassAgain" type="password" placeholder="Şifre (tekrar)" />
         <button class="btn" id="doRegister">Kayıt Ol</button>
+        <div id="registerOtpWrap" class="hidden">
+          <input id="regOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
+          <button class="btn" id="verifyRegisterOtp">Kodu Doğrula ve Hesabı Aç</button>
+        </div>
         <p id="registerStatus" class="meta"></p>
       </div>
     </section>
@@ -210,7 +221,10 @@
       currentUser: JSON.parse(localStorage.getItem("aero-current-user") || "null"),
       users: JSON.parse(localStorage.getItem("aero-users") || "[]"),
       magazines: JSON.parse(localStorage.getItem("aero-magazines") || "[]"),
-      homeContent: JSON.parse(localStorage.getItem("aero-home-content") || "null") || defaultHomeContent
+      homeContent: JSON.parse(localStorage.getItem("aero-home-content") || "null") || defaultHomeContent,
+      pendingOtp: null,
+      pendingRegister: null,
+      pendingLogin: null
     };
 
     const magListEl = document.getElementById("magList");
@@ -332,73 +346,108 @@
     });
 
     document.getElementById("gotoRegisterBtn").addEventListener("click", () => switchPage("kayit"));
-
-    async function verifyEmailExists(email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-      if (!emailRegex.test(email)) return { ok: false, reason: "E-posta formatı geçersiz." };
-
-      try {
-        const res = await fetch(`https://api.eva.pingutil.com/email?email=${encodeURIComponent(email)}`);
-        if (!res.ok) return { ok: false, reason: "E-posta doğrulama servisine ulaşılamadı." };
-        const data = await res.json();
-        const d = data?.data || {};
-        const looksReal = Boolean(d.deliverable) || (Boolean(d.valid_syntax) && Boolean(d.has_mx_records) && !Boolean(d.disposable));
-        return looksReal
-          ? { ok: true }
-          : { ok: false, reason: "Bu e-posta gerçek/gönderilebilir görünmüyor." };
-      } catch {
-        return { ok: false, reason: "E-posta doğrulama servisine bağlanılamadı." };
-      }
+    function sendOtpToEmail(email, reason) {
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      state.pendingOtp = { code, email, expiresAt: Date.now() + 5 * 60 * 1000, reason };
+      return code;
     }
 
-    document.getElementById("doRegister").addEventListener("click", async () => {
+    function checkOtp(inputCode, email) {
+      if (!state.pendingOtp) return { ok: false, reason: "Önce doğrulama kodu iste." };
+      if (Date.now() > state.pendingOtp.expiresAt) return { ok: false, reason: "Kodun süresi doldu. Tekrar kod iste." };
+      if (state.pendingOtp.email !== email) return { ok: false, reason: "Kod bu e-posta için üretilmedi." };
+      if (state.pendingOtp.code !== inputCode) return { ok: false, reason: "Kod hatalı." };
+      return { ok: true };
+    }
+
+    document.getElementById("doRegister").addEventListener("click", () => {
       const user = document.getElementById("regUser").value.trim();
       const email = document.getElementById("regMail").value.trim();
       const pass = document.getElementById("regPass").value.trim();
       const pass2 = document.getElementById("regPassAgain").value.trim();
       const out = document.getElementById("registerStatus");
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
       if (!user || !email || !pass || !pass2) { out.textContent = "Tüm alanlar zorunlu."; return; }
+      if (!emailRegex.test(email)) { out.textContent = "Geçerli bir e-posta gir."; return; }
       if (pass !== pass2) { out.textContent = "Şifreler eşleşmiyor."; return; }
       if (state.users.some((u) => u.user === user) || user === ADMIN_USER) { out.textContent = "Bu kullanıcı adı kullanılıyor."; return; }
 
-      out.textContent = "E-posta doğrulanıyor...";
-      const verification = await verifyEmailExists(email);
-      if (!verification.ok) {
-        out.textContent = verification.reason;
-        return;
-      }
+      state.pendingRegister = { user, email, pass };
+      const code = sendOtpToEmail(email, "register");
+      document.getElementById("registerOtpWrap").classList.remove("hidden");
+      out.textContent = `6 haneli doğrulama kodu e-posta adresine gönderildi. (Demo kod: ${code})`;
+    });
 
-      state.users.push({ user, email, pass, avatar: DEFAULT_AVATAR, lastLogin: "-" });
+    document.getElementById("verifyRegisterOtp").addEventListener("click", () => {
+      const out = document.getElementById("registerStatus");
+      const codeInput = document.getElementById("regOtpCode").value.trim();
+      if (!state.pendingRegister) { out.textContent = "Önce kayıt formunu doldur."; return; }
+
+      const check = checkOtp(codeInput, state.pendingRegister.email);
+      if (!check.ok) { out.textContent = check.reason; return; }
+
+      const newUser = { user: state.pendingRegister.user, email: state.pendingRegister.email, pass: state.pendingRegister.pass, avatar: DEFAULT_AVATAR, lastLogin: new Date().toLocaleString("tr-TR") };
+      state.users.push(newUser);
       saveUsers();
-      out.textContent = "Kayıt başarılı. Giriş sayfasına geçebilirsin.";
-      switchPage("giris");
+      state.currentUser = { user: newUser.user, email: newUser.email, avatar: newUser.avatar, isAdmin: false };
+      saveCurrentUser();
+      state.pendingRegister = null;
+      state.pendingOtp = null;
+      document.getElementById("registerOtpWrap").classList.add("hidden");
+      out.textContent = "Kayıt tamamlandı ve otomatik giriş yapıldı.";
+      syncAdminView();
+      syncProfileView();
+      switchPage("profil");
     });
 
     document.getElementById("doLogin").addEventListener("click", () => {
       const user = document.getElementById("loginUser").value.trim();
+      const email = document.getElementById("loginMail").value.trim();
       const pass = document.getElementById("loginPass").value.trim();
       const out = document.getElementById("loginStatus");
 
       state.isAdmin = false;
-      if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        state.isAdmin = true;
-        state.currentUser = { user: ADMIN_USER, email: CONTACT_TO, avatar: DEFAULT_AVATAR, isAdmin: true };
-        saveCurrentUser();
-        out.textContent = "Yönetici girişi başarılı.";
-        syncAdminView();
-        syncProfileView();
-        switchPage("profil");
+      if (user === ADMIN_USER && pass === ADMIN_PASS && email === CONTACT_TO) {
+        state.pendingLogin = { user: ADMIN_USER, email: CONTACT_TO, isAdmin: true };
+        const code = sendOtpToEmail(email, "login-admin");
+        document.getElementById("loginOtpWrap").classList.remove("hidden");
+        out.textContent = `Admin doğrulama kodu gönderildi. (Demo kod: ${code})`;
         return;
       }
 
-      const idx = state.users.findIndex((u) => u.user === user && u.pass === pass);
-      if (idx < 0) { out.textContent = "Kullanıcı adı veya şifre hatalı."; syncAdminView(); return; }
+      const idx = state.users.findIndex((u) => u.user === user && u.pass === pass && u.email === email);
+      if (idx < 0) { out.textContent = "Kullanıcı adı / e-posta / şifre hatalı."; syncAdminView(); return; }
 
-      state.users[idx].lastLogin = new Date().toLocaleString("tr-TR");
-      saveUsers();
-      state.currentUser = { user: state.users[idx].user, email: state.users[idx].email, avatar: state.users[idx].avatar || DEFAULT_AVATAR, isAdmin: false };
+      state.pendingLogin = { idx, user: state.users[idx].user, email: state.users[idx].email, isAdmin: false };
+      const code = sendOtpToEmail(email, "login-user");
+      document.getElementById("loginOtpWrap").classList.remove("hidden");
+      out.textContent = `Giriş doğrulama kodu gönderildi. (Demo kod: ${code})`;
+    });
+
+    document.getElementById("verifyLoginOtp").addEventListener("click", () => {
+      const out = document.getElementById("loginStatus");
+      const codeInput = document.getElementById("loginOtpCode").value.trim();
+      if (!state.pendingLogin) { out.textContent = "Önce giriş bilgilerini gir."; return; }
+
+      const check = checkOtp(codeInput, state.pendingLogin.email);
+      if (!check.ok) { out.textContent = check.reason; return; }
+
+      if (state.pendingLogin.isAdmin) {
+        state.isAdmin = true;
+        state.currentUser = { user: ADMIN_USER, email: CONTACT_TO, avatar: DEFAULT_AVATAR, isAdmin: true };
+      } else {
+        state.isAdmin = false;
+        const idx = state.pendingLogin.idx;
+        state.users[idx].lastLogin = new Date().toLocaleString("tr-TR");
+        saveUsers();
+        state.currentUser = { user: state.users[idx].user, email: state.users[idx].email, avatar: state.users[idx].avatar || DEFAULT_AVATAR, isAdmin: false };
+      }
+
       saveCurrentUser();
+      state.pendingLogin = null;
+      state.pendingOtp = null;
+      document.getElementById("loginOtpWrap").classList.add("hidden");
       out.textContent = "Giriş başarılı.";
       syncAdminView();
       syncProfileView();
