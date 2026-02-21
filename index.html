@@ -12,7 +12,7 @@
     body.page-menu{--glowA:58,123,255;--glowB:122,92,255;background:radial-gradient(circle at 10% -10%,rgba(122,92,255,.25),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.08),transparent 35%),var(--bg)}
     body.page-dergiler{--glowA:58,123,255;--glowB:122,92,255;background:radial-gradient(circle at 80% -10%,rgba(58,123,255,.25),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.08),transparent 35%),var(--bg)}
     body.page-iletisim{--glowA:0,196,140;--glowB:40,220,170;background:radial-gradient(circle at 50% -10%,rgba(0,196,140,.23),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.06),transparent 35%),var(--bg)}
-    body.page-giris,body.page-kayit,body.page-profil{--glowA:255,165,60;--glowB:255,120,40;background:radial-gradient(circle at 20% -10%,rgba(255,179,71,.2),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.06),transparent 35%),var(--bg)}
+    body.page-giris,body.page-profil{--glowA:255,165,60;--glowB:255,120,40;background:radial-gradient(circle at 20% -10%,rgba(255,179,71,.2),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.06),transparent 35%),var(--bg)}
     body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:
       radial-gradient(circle at 18% 22%, rgba(var(--glowA),.28) 0, transparent 38%),
       radial-gradient(circle at 82% 68%, rgba(var(--glowB),.22) 0, transparent 35%);
@@ -128,34 +128,35 @@
   </section>
 
   <section id="giris" class="page centered-page">
-    <h2 class="section-title">Giriş Yap</h2>
-    <div class="card auth-animated" style="max-width:460px;">
-      <input id="loginUser" placeholder="Kullanıcı adı" />
-      <input id="loginMail" type="email" placeholder="E-posta" />
-      <input id="loginPass" type="password" placeholder="Şifre" />
-      <button class="btn-primary" id="doLogin">Giriş Yap</button>
-      <div id="loginOtpWrap" class="hidden">
-        <input id="loginOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
-        <button class="btn" id="verifyLoginOtp">Kodu Doğrula</button>
+    <div class="card auth-animated" style="max-width:520px;width:100%;">
+      <div id="loginPanel">
+        <h2 class="section-title">Giriş Yap</h2>
+        <input id="loginUser" placeholder="Kullanıcı adı" />
+        <input id="loginMail" type="email" placeholder="E-posta" />
+        <input id="loginPass" type="password" placeholder="Şifre" />
+        <button class="btn-primary" id="doLogin">Giriş Yap</button>
+        <div id="loginOtpWrap" class="hidden">
+          <input id="loginOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
+          <button class="btn" id="verifyLoginOtp">Kodu Doğrula</button>
+        </div>
+        <p id="loginStatus" class="meta"></p>
+        <p class="meta">Hesabın yok mu? <button class="btn" id="gotoRegisterBtn" style="padding:6px 10px;">Hemen Kayıt Ol</button></p>
       </div>
-      <p id="loginStatus" class="meta"></p>
-      <p class="meta">Kayıt olmadın mı? <button class="btn" id="gotoRegisterBtn" style="padding:6px 10px;">Hemen Ol</button></p>
-    </div>
-  </section>
 
-  <section id="kayit" class="page centered-page">
-    <h2 class="section-title">Kayıt Ol</h2>
-    <div class="card auth-animated" style="max-width:460px;">
-      <input id="regUser" placeholder="Kullanıcı adı" />
-      <input id="regMail" type="email" placeholder="E-posta" />
-      <input id="regPass" type="password" placeholder="Şifre" />
-      <input id="regPassAgain" type="password" placeholder="Şifre (tekrar)" />
-      <button class="btn" id="doRegister">Kayıt Ol</button>
-      <div id="registerOtpWrap" class="hidden">
-        <input id="regOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
-        <button class="btn" id="verifyRegisterOtp">Kodu Doğrula ve Hesabı Aç</button>
+      <div id="registerPanel" class="hidden">
+        <h2 class="section-title">Kayıt Ol</h2>
+        <input id="regUser" placeholder="Kullanıcı adı" />
+        <input id="regMail" type="email" placeholder="E-posta" />
+        <input id="regPass" type="password" placeholder="Şifre" />
+        <input id="regPassAgain" type="password" placeholder="Şifre (tekrar)" />
+        <button class="btn" id="doRegister">Kayıt Ol</button>
+        <div id="registerOtpWrap" class="hidden">
+          <input id="regOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
+          <button class="btn" id="verifyRegisterOtp">Kodu Doğrula ve Hesabı Aç</button>
+        </div>
+        <p id="registerStatus" class="meta"></p>
+        <p class="meta">Zaten hesabın var mı? <button class="btn" id="gotoLoginBtn" style="padding:6px 10px;">Giriş Yap</button></p>
       </div>
-      <p id="registerStatus" class="meta"></p>
     </div>
   </section>
 
@@ -193,9 +194,10 @@ const saveHomeContent=()=>localStorage.setItem("aero-home-content",JSON.stringif
 
 function switchPage(pageId){
   if(pageId==="giris"&&state.currentUser){pageId="profil";}
+  if(pageId==="giris"){qs("registerPanel")?.classList.add("hidden");qs("loginPanel")?.classList.remove("hidden");}
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===pageId));
   document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===pageId));
-  document.body.classList.remove("page-menu","page-dergiler","page-iletisim","page-giris","page-kayit","page-profil");
+  document.body.classList.remove("page-menu","page-dergiler","page-iletisim","page-giris","page-profil");
   document.body.classList.add(`page-${pageId}`);
 }
 function updateLoginTab(){ qs("loginTab").classList.toggle("hidden",!!state.currentUser); }
@@ -271,7 +273,8 @@ function checkOtp(code,email){if(!state.pendingOtp)return{ok:false,reason:"Önce
 // events
 Array.from(document.querySelectorAll('.tab-btn')).forEach(b=>b.addEventListener('click',()=>switchPage(b.dataset.page)));
 qs("themeBtn").onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('aero-theme',document.body.classList.contains('dark')?'dark':'light');};
-qs("gotoRegisterBtn").onclick=()=>switchPage('kayit');
+qs("gotoRegisterBtn").onclick=()=>{qs("loginPanel").classList.add("hidden");qs("registerPanel").classList.remove("hidden");};
+qs("gotoLoginBtn").onclick=()=>{qs("registerPanel").classList.add("hidden");qs("loginPanel").classList.remove("hidden");};
 
 qs("doRegister").onclick=()=>{
   const user=qs("regUser").value.trim(),email=qs("regMail").value.trim(),pass=qs("regPass").value.trim(),pass2=qs("regPassAgain").value.trim(),out=qs("registerStatus");
