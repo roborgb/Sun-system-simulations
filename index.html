@@ -9,10 +9,14 @@
     body.dark{--bg:#0f1420;--panel:#161e2e;--text:#f4f8ff;--muted:#a8b4ca;--accent:#6ea8ff;--accent2:#a88bff;--border:#273246;--shadow:0 12px 34px rgba(0,0,0,.38)}
     *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
     body{background:radial-gradient(circle at 15% -10%,rgba(122,92,255,.2),transparent 35%),var(--bg);color:var(--text);min-height:100vh;transition:background .5s ease}
-    body.page-menu{background:radial-gradient(circle at 10% -10%,rgba(122,92,255,.25),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.08),transparent 35%),var(--bg)}
-    body.page-dergiler{background:radial-gradient(circle at 80% -10%,rgba(58,123,255,.25),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.08),transparent 35%),var(--bg)}
-    body.page-iletisim{background:radial-gradient(circle at 50% -10%,rgba(0,196,140,.23),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.06),transparent 35%),var(--bg)}
-    body.page-giris,body.page-kayit,body.page-profil{background:radial-gradient(circle at 20% -10%,rgba(255,179,71,.2),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.06),transparent 35%),var(--bg)}
+    body.page-menu{--glowA:58,123,255;--glowB:122,92,255;background:radial-gradient(circle at 10% -10%,rgba(122,92,255,.25),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.08),transparent 35%),var(--bg)}
+    body.page-dergiler{--glowA:58,123,255;--glowB:122,92,255;background:radial-gradient(circle at 80% -10%,rgba(58,123,255,.25),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.08),transparent 35%),var(--bg)}
+    body.page-iletisim{--glowA:0,196,140;--glowB:40,220,170;background:radial-gradient(circle at 50% -10%,rgba(0,196,140,.23),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.06),transparent 35%),var(--bg)}
+    body.page-giris,body.page-kayit,body.page-profil{--glowA:255,165,60;--glowB:255,120,40;background:radial-gradient(circle at 20% -10%,rgba(255,179,71,.2),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.06),transparent 35%),var(--bg)}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:
+      radial-gradient(circle at 18% 22%, rgba(var(--glowA),.28) 0, transparent 38%),
+      radial-gradient(circle at 82% 68%, rgba(var(--glowB),.22) 0, transparent 35%);
+      filter: blur(10px); animation: glowBlink 2.4s ease-in-out infinite;}
 
     .container{width:min(1100px,92%);margin:0 auto}
     header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:color-mix(in oklab,var(--bg) 85%,transparent);border-bottom:1px solid var(--border)}
@@ -26,6 +30,7 @@
     .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0}
 
     main{padding:42px 0 20px}.page{display:none}.page.active{display:block}
+    .centered-page{display:flex;justify-content:center}
     .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px}
     .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .hero h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.6rem)} .hero p{margin:0;color:var(--muted);line-height:1.55}
@@ -41,6 +46,7 @@
     .hero-pop{animation:bounceIn .7s ease both}
     .hero-pop.delay{animation-delay:.12s}
     @keyframes authBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes glowBlink{0%,100%{opacity:.55}50%{opacity:1}}
     .auth-animated{background:linear-gradient(-45deg,color-mix(in oklab,var(--accent) 25%,var(--panel)),color-mix(in oklab,var(--accent2) 24%,var(--panel)),var(--panel),color-mix(in oklab,var(--accent) 15%,var(--panel)));background-size:280% 280%;animation:authBg 8s ease infinite}
     .avatar-letter{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:2rem;font-weight:800;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));margin-bottom:10px;animation:bounceIn .6s ease both}
     .comment-box{margin-top:8px;border-top:1px dashed var(--border);padding-top:8px}
@@ -105,14 +111,14 @@
   </section>
 
   <section id="dergiler" class="page">
-    <h2 class="section-title">Dergilerim</h2>
+    <h2 class="section-title" id="magSectionTitle">Dergilerim</h2>
     <p class="meta" id="emptyNote">Henüz dergi eklenmedi.</p>
     <div id="magList" class="mag-grid"></div>
   </section>
 
   <section id="iletisim" class="page">
     <h2 class="section-title">İletişim Formu</h2>
-    <div class="card">
+    <div class="card hero-pop">
       <input id="contactName" placeholder="Ad Soyad" />
       <input id="contactMail" type="email" placeholder="E-posta" />
       <textarea id="contactMsg" placeholder="Mesajın"></textarea>
@@ -121,7 +127,7 @@
     </div>
   </section>
 
-  <section id="giris" class="page">
+  <section id="giris" class="page centered-page">
     <h2 class="section-title">Giriş Yap</h2>
     <div class="card auth-animated" style="max-width:460px;">
       <input id="loginUser" placeholder="Kullanıcı adı" />
@@ -137,7 +143,7 @@
     </div>
   </section>
 
-  <section id="kayit" class="page">
+  <section id="kayit" class="page centered-page">
     <h2 class="section-title">Kayıt Ol</h2>
     <div class="card auth-animated" style="max-width:460px;">
       <input id="regUser" placeholder="Kullanıcı adı" />
@@ -158,8 +164,11 @@
     <div class="card" id="profileGuest"><p class="meta">Profil görmek için önce giriş yap.</p></div>
     <div class="card hidden" id="profileCard">
       <div id="profileAvatarLetter" class="avatar-letter">A</div>
+      <img id="profileAvatarImage" class="avatar-letter hidden" alt="Profil Fotoğrafı" style="object-fit:cover;padding:0" />
       <h3 id="profileName" style="margin-top:0"></h3>
       <p id="profileEmail" class="meta"></p>
+      <input id="profileImageFile" type="file" accept="image/png,image/jpeg,image/jpg" />
+      <button class="btn" id="changeProfileImageBtn">Profil Fotoğrafını Değiştir</button>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn" id="logoutBtn">Çıkış Yap</button>
         <button class="btn" id="deleteProfileBtn">Profili Sil</button>
@@ -243,13 +252,17 @@ function renderUsersForAdmin(){
   document.querySelectorAll('.rmUser').forEach(b=>b.onclick=()=>{const un=b.dataset.user;state.users=state.users.filter(u=>u.user!==un);saveUsers();renderUsersForAdmin();});
 }
 
-function syncAdminView(){qs("adminOnly").classList.toggle("hidden",!state.isAdmin);renderUsersForAdmin();renderEngagementForAdmin();}
+function syncAdminView(){qs("adminOnly").classList.toggle("hidden",!state.isAdmin);qs("magSectionTitle").textContent=state.isAdmin?"Dergilerim":"Dergiler";renderUsersForAdmin();renderEngagementForAdmin();}
 function syncProfileView(){
-  const guest=qs("profileGuest"),card=qs("profileCard"),avatar=qs("profileAvatarLetter");
+  const guest=qs("profileGuest"),card=qs("profileCard"),avatarLetter=qs("profileAvatarLetter"),avatarImage=qs("profileAvatarImage");
   guest.classList.toggle("hidden",!!state.currentUser); card.classList.toggle("hidden",!state.currentUser);
   if(!state.currentUser)return;
   qs("profileName").textContent=state.currentUser.user; qs("profileEmail").textContent=`E-posta: ${state.currentUser.email||"-"}`;
-  avatar.textContent=(state.currentUser.user||"A").charAt(0).toUpperCase();
+  if(state.currentUser.profileImage){
+    avatarImage.src=state.currentUser.profileImage; avatarImage.classList.remove("hidden"); avatarLetter.classList.add("hidden");
+  }else{
+    avatarLetter.textContent=(state.currentUser.user||"A").charAt(0).toUpperCase(); avatarLetter.classList.remove("hidden"); avatarImage.classList.add("hidden");
+  }
 }
 
 function sendOtpToEmail(email){const code=String(Math.floor(100000+Math.random()*900000));state.pendingOtp={code,email,exp:Date.now()+5*60*1000};return code;}
@@ -269,7 +282,7 @@ qs("verifyRegisterOtp").onclick=()=>{
   const out=qs("registerStatus"),code=qs("regOtpCode").value.trim(); if(!state.pendingRegister){out.textContent='Önce kayıt formunu doldur.';return;}
   const chk=checkOtp(code,state.pendingRegister.email); if(!chk.ok){out.textContent=chk.reason;return;}
   const u={user:state.pendingRegister.user,email:state.pendingRegister.email,pass:state.pendingRegister.pass,lastLogin:new Date().toLocaleString('tr-TR')}; state.users.push(u); saveUsers();
-  state.currentUser={user:u.user,email:u.email,isAdmin:false}; saveCurrentUser(); state.pendingRegister=null; state.pendingOtp=null; qs("registerOtpWrap").classList.add('hidden');
+  state.currentUser={user:u.user,email:u.email,isAdmin:false,profileImage:null}; saveCurrentUser(); state.pendingRegister=null; state.pendingOtp=null; qs("registerOtpWrap").classList.add('hidden');
   out.textContent='Kayıt tamamlandı ve otomatik giriş yapıldı.'; updateLoginTab(); syncProfileView(); switchPage('profil');
 };
 
@@ -282,8 +295,8 @@ qs("doLogin").onclick=()=>{
 qs("verifyLoginOtp").onclick=()=>{
   const out=qs("loginStatus"),code=qs("loginOtpCode").value.trim(); if(!state.pendingLogin){out.textContent='Önce giriş bilgilerini gir.';return;}
   const chk=checkOtp(code,state.pendingLogin.email); if(!chk.ok){out.textContent=chk.reason;return;}
-  if(state.pendingLogin.admin){state.isAdmin=true; state.currentUser={user:ADMIN_USER,email:CONTACT_TO,isAdmin:true};}
-  else{state.isAdmin=false; const i=state.pendingLogin.idx; state.users[i].lastLogin=new Date().toLocaleString('tr-TR'); saveUsers(); state.currentUser={user:state.users[i].user,email:state.users[i].email,isAdmin:false};}
+  if(state.pendingLogin.admin){state.isAdmin=true; state.currentUser={user:ADMIN_USER,email:CONTACT_TO,isAdmin:true,profileImage:null};}
+  else{state.isAdmin=false; const i=state.pendingLogin.idx; state.users[i].lastLogin=new Date().toLocaleString('tr-TR'); saveUsers(); state.currentUser={user:state.users[i].user,email:state.users[i].email,isAdmin:false,profileImage:state.users[i].profileImage||null};}
   saveCurrentUser(); state.pendingLogin=null; state.pendingOtp=null; qs("loginOtpWrap").classList.add('hidden'); out.textContent='Giriş başarılı.'; updateLoginTab(); syncAdminView(); syncProfileView(); switchPage('profil');
 };
 
@@ -295,6 +308,27 @@ qs("addMagBtn").onclick=()=>{
 };
 
 qs("saveHomeContentBtn").onclick=()=>{if(!state.isAdmin)return;const b=qs("editBrand").value.trim()||"Aerodinamik Dergi";state.homeContent.brandHtml=b.replace("dinamik","<span>dinamik</span>");state.homeContent.heroTitle=qs("editHeroTitle").value.trim()||defaultHomeContent.heroTitle;state.homeContent.heroSubtitle=qs("editHeroSub").value.trim()||defaultHomeContent.heroSubtitle;state.homeContent.storyText=qs("editStory").value.trim()||defaultHomeContent.storyText;saveHomeContent();renderHomeContent();};
+
+qs("changeProfileImageBtn").onclick=()=>{
+  if(!state.currentUser){return;}
+  const file=qs("profileImageFile").files[0];
+  if(!file){qs("profileStatus").textContent='Önce bir PNG/JPG seç.';return;}
+  const ok=["image/png","image/jpeg","image/jpg"].includes(file.type);
+  if(!ok){qs("profileStatus").textContent='Sadece PNG/JPG yükleyebilirsin.';return;}
+  const r=new FileReader();
+  r.onload=()=>{
+    state.currentUser.profileImage=r.result;
+    if(!state.currentUser.isAdmin){
+      const i=state.users.findIndex(u=>u.user===state.currentUser.user);
+      if(i>=0){state.users[i].profileImage=r.result;saveUsers();}
+    }
+    saveCurrentUser();
+    syncProfileView();
+    qs("profileStatus").textContent='Profil fotoğrafı güncellendi.';
+    qs("profileImageFile").value='';
+  };
+  r.readAsDataURL(file);
+};
 
 qs("logoutBtn").onclick=()=>{state.currentUser=null;state.isAdmin=false;localStorage.removeItem("aero-current-user");updateLoginTab();syncAdminView();syncProfileView();switchPage('menu');};
 qs("deleteProfileBtn").onclick=()=>{if(!state.currentUser||state.currentUser.isAdmin){qs("profileStatus").textContent='Admin profili bu butondan silinemez.';return;}state.users=state.users.filter(u=>u.user!==state.currentUser.user);saveUsers();state.currentUser=null;localStorage.removeItem('aero-current-user');updateLoginTab();syncProfileView();switchPage('menu');};
