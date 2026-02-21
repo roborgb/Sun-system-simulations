@@ -1,404 +1,353 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Modern Güneş Sistemi — Etkileşimli</title>
-<style>
-  :root{
-    --panel-bg: rgba(255,255,255,0.06);
-    --accent: #9be7ff;
-    --glass-border: rgba(255,255,255,0.08);
-    --ui-radius: 12px;
-  }
-  html,body{height:100%;margin:0;font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-  body{background: #000; color:#e6f7ff; overflow:hidden; -webkit-font-smoothing:antialiased;}
-  canvas{display:block; width:100vw; height:100vh;}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aerodinamik Dergi | Modern Vitrin</title>
+  <style>
+    :root{--bg:#f5f7fb;--panel:#fff;--text:#1e2430;--muted:#657186;--accent:#3a7bff;--accent2:#7a5cff;--border:#e6eaf2;--shadow:0 12px 34px rgba(31,40,55,.12)}
+    body.dark{--bg:#0f1420;--panel:#161e2e;--text:#f4f8ff;--muted:#a8b4ca;--accent:#6ea8ff;--accent2:#a88bff;--border:#273246;--shadow:0 12px 34px rgba(0,0,0,.38)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
+    body{background:radial-gradient(circle at 15% -10%,rgba(122,92,255,.2),transparent 35%),var(--bg);color:var(--text);min-height:100vh;transition:background .5s ease}
+    body.page-menu{--glowA:58,123,255;--glowB:122,92,255;background:radial-gradient(circle at 10% -10%,rgba(122,92,255,.25),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.08),transparent 35%),var(--bg)}
+    body.page-dergiler{--glowA:58,123,255;--glowB:122,92,255;background:radial-gradient(circle at 80% -10%,rgba(58,123,255,.25),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.08),transparent 35%),var(--bg)}
+    body.page-iletisim{--glowA:0,196,140;--glowB:40,220,170;background:radial-gradient(circle at 50% -10%,rgba(0,196,140,.23),transparent 35%),linear-gradient(180deg,rgba(58,123,255,.06),transparent 35%),var(--bg)}
+    body.page-giris,body.page-profil{--glowA:255,165,60;--glowB:255,120,40;background:radial-gradient(circle at 20% -10%,rgba(255,179,71,.2),transparent 35%),linear-gradient(180deg,rgba(122,92,255,.06),transparent 35%),var(--bg)}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:
+      radial-gradient(circle at 18% 22%, rgba(var(--glowA),.28) 0, transparent 38%),
+      radial-gradient(circle at 82% 68%, rgba(var(--glowB),.22) 0, transparent 35%);
+      filter: blur(10px); animation: glowBlink 2.4s ease-in-out infinite;}
 
-  /* Top-right time */
-  #timeBox{
-    position:fixed; right:18px; top:18px; z-index:60;
-    background:var(--panel-bg); border:1px solid var(--glass-border);
-    padding:10px 14px; border-radius:10px; backdrop-filter: blur(6px);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
-    font-weight:600; letter-spacing:0.6px;
-  }
+    .container{width:min(1100px,92%);margin:0 auto}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:color-mix(in oklab,var(--bg) 85%,transparent);border-bottom:1px solid var(--border)}
+    .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;flex-wrap:wrap}
+    .brand{font-weight:800;letter-spacing:.3px}.brand span{color:var(--accent)}
+    .top-tabs,.actions{display:flex;gap:8px;flex-wrap:wrap}
+    .tab-btn,button,.btn{border:1px solid var(--border);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;transition:.25s transform,.25s background,.25s border}
+    .tab-btn:hover,button:hover,.btn:hover{transform:translateY(-1px);border-color:color-mix(in oklab,var(--accent) 55%,var(--border))}
+    .tab-btn.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+    .tab-btn.login-blue{background:var(--accent);color:#fff;border-color:transparent}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:0}
 
-  /* Left controls */
-  #controls{
-    position:fixed; left:18px; top:18px; z-index:60;
-    display:flex; gap:8px; align-items:center;
-    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-    padding:10px; border-radius:12px; border:1px solid var(--glass-border);
-    backdrop-filter: blur(6px);
-  }
-  .btn{
-    background:transparent; border:1px solid rgba(255,255,255,0.08);
-    color:var(--accent); padding:8px 12px; border-radius:8px; cursor:pointer;
-    font-weight:600;
-  }
-  .btn.ghost{ color:#fff; background:transparent; border:1px dashed rgba(255,255,255,0.05); }
-  .btn:active{ transform:translateY(1px); }
-  .speedLabel{ color:#cfeffd; font-weight:600; margin-left:6px; }
+    main{padding:42px 0 20px}.page{display:none}.page.active{display:block}
+    .page.centered-page.active{display:flex;justify-content:center}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:start}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .hero h1{margin:0 0 8px;font-size:clamp(1.7rem,4vw,2.6rem)} .hero p{margin:0;color:var(--muted);line-height:1.55}
+    .section-title{margin:0 0 16px;font-size:1.5rem}
+    input,textarea{width:100%;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;padding:10px;margin-bottom:10px}
+    textarea{min-height:95px;resize:vertical}
+    .meta{color:var(--muted);font-size:.92rem}.hidden{display:none!important}
+    .mag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+    .mag-cover{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;background:#d5deee}
+    .list-item{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
 
-  /* Modal info */
-  #modal {
-    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.98);
-    min-width:320px; max-width:420px; z-index:120; display:none;
-    background: linear-gradient(180deg, rgba(10,12,20,0.96), rgba(6,8,12,0.96));
-    border-radius:14px; padding:18px; box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-    border:1px solid rgba(255,255,255,0.06);
-  }
-  #modal h3{ margin:0 0 8px 0; color:var(--accent); }
-  #modal p{ margin:0 0 12px 0; color:#cfeffd; font-size:14px; line-height:1.3; }
-  #modal .actions{ display:flex; gap:8px; justify-content:flex-end; }
-  a.linkOut{
-    background:linear-gradient(90deg,var(--accent),#7bd3ff); color:#012; padding:8px 12px; border-radius:8px;
-    font-weight:700; text-decoration:none;
-  }
+    @keyframes bounceIn{0%{transform:scale(.7) translateY(18px);opacity:0}60%{transform:scale(1.06) translateY(-8px);opacity:1}100%{transform:scale(1) translateY(0)}}
+    .hero-pop{animation:bounceIn .7s ease both}
+    .hero-pop.delay{animation-delay:.12s}
+    @keyframes authBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes glowBlink{0%,100%{opacity:.55}50%{opacity:1}}
+    .auth-animated{background:linear-gradient(-45deg,color-mix(in oklab,var(--accent) 25%,var(--panel)),color-mix(in oklab,var(--accent2) 24%,var(--panel)),var(--panel),color-mix(in oklab,var(--accent) 15%,var(--panel)));background-size:280% 280%;animation:authBg 8s ease infinite}
+    .avatar-letter{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:2rem;font-weight:800;color:#fff;background:linear-gradient(120deg,var(--accent),var(--accent2));margin-bottom:10px;animation:bounceIn .6s ease both}
+    .comment-box{margin-top:8px;border-top:1px dashed var(--border);padding-top:8px}
+    .comment-item{font-size:.86rem;color:var(--muted);margin:4px 0}
+    .pdf-viewer{width:100%;height:380px;border:1px solid var(--border);border-radius:10px}
 
-  /* small hint */
-  #hint{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); z-index:60;
-    background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:999px; border:1px solid var(--glass-border); color:#cfeffd; font-size:13px; }
-
-  /* Make it responsive */
-  @media (max-width:520px){
-    #controls{ flex-direction:column; left:12px; top:12px; padding:8px; }
-    #timeBox{ right:12px; top:12px; padding:8px 10px; font-size:14px; }
-    #modal{ width:92%; max-width:92%; padding:14px; }
-  }
-</style>
+    footer{text-align:center;color:var(--muted);border-top:1px solid var(--border);padding:24px 0 40px;margin-top:26px}
+    @media (max-width:860px){.hero,.grid2{grid-template-columns:1fr}}
+  </style>
 </head>
-<body>
-<canvas id="c"></canvas>
-
-<div id="timeBox">2000 / 01 / 01</div>
-
-<div id="controls" aria-hidden="false">
-  <button id="toggle" class="btn">Durdur</button>
-  <button id="slow" class="btn ghost">0.5×</button>
-  <button id="norm" class="btn ghost">1×</button>
-  <button id="fast" class="btn ghost">2×</button>
-  <div class="speedLabel" id="speedLbl">1×</div>
-</div>
-
-<div id="modal" role="dialog" aria-modal="true">
-  <h3 id="modalTitle">Başlık</h3>
-  <p id="modalText">Bilgi</p>
-  <div class="actions">
-    <a id="modalWiki" class="linkOut" href="#" target="_blank" rel="noopener">Wikipedia</a>
-    <button id="modalClose" class="btn ghost">Kapat</button>
+<body class="page-menu">
+<header>
+  <div class="container nav">
+    <div class="brand" id="brandText">Aero<span>dinamik</span> Dergi</div>
+    <div class="top-tabs" role="tablist">
+      <button class="tab-btn active" data-page="menu">Ana Menü</button>
+      <button class="tab-btn" data-page="dergiler">Dergilerim</button>
+      <button class="tab-btn" data-page="iletisim">İletişim</button>
+      <button class="tab-btn login-blue" data-page="giris" id="loginTab">Giriş</button>
+      <button class="tab-btn" data-page="profil">Profilim</button>
+    </div>
+    <div class="actions"><button id="themeBtn">🌙 Karanlık Mod</button></div>
   </div>
-</div>
+</header>
 
-<div id="hint">Gezegene ya da Güneş'e tıklayın — detaylı sayfa açmak için "Wikipedia" butonuna tıklayın.</div>
+<main class="container">
+  <section id="menu" class="page active">
+    <div class="hero">
+      <div class="card hero-pop">
+        <h1 id="heroTitle">Aerodinamik Dergi Vitrini</h1>
+        <p id="heroSubtitle">Bu modern Türkçe sitede kendi yazdığın Aerodinamik dergilerini sergileyebilirsin.</p>
+      </div>
+      <div class="card hero-pop delay">
+        <h3 style="margin-top:0">Hikayemiz</h3>
+        <p id="storyText" class="meta">Aerodinamik, havacılık tutkusunu bilgiye dönüştüren bir dergi projesidir.</p>
+      </div>
+    </div>
+
+    <div id="adminOnly" class="card hidden" style="margin-top:16px;">
+      <h3 style="margin-top:0">Admin Kontrol Alanı</h3>
+      <div class="grid2">
+        <div>
+          <h4>Yeni Dergi Ekle</h4>
+          <input id="magTitle" placeholder="Dergi adı" />
+          <input id="magCover" type="file" accept="image/png,image/jpeg,image/jpg" />
+          <input id="magPdf" type="file" accept="application/pdf" />
+          <textarea id="magDesc" placeholder="Kısa açıklama"></textarea>
+          <button class="btn-primary" id="addMagBtn">Dergi Ekle</button>
+        </div>
+        <div>
+          <h4>Ana Menü İçeriği Düzenle</h4>
+          <input id="editBrand" placeholder="Üst başlık" />
+          <input id="editHeroTitle" placeholder="Ana başlık" />
+          <textarea id="editHeroSub" placeholder="Başlık altı açıklama"></textarea>
+          <textarea id="editStory" placeholder="Hikayemiz metni"></textarea>
+          <button class="btn" id="saveHomeContentBtn">Kaydet</button>
+        </div>
+      </div>
+      <h4>Kullanıcılar</h4><div id="usersList"></div>
+      <h4>Beğeni & Yorum Raporu</h4><div id="engagementList"></div>
+    </div>
+  </section>
+
+  <section id="dergiler" class="page">
+    <h2 class="section-title" id="magSectionTitle">Dergilerim</h2>
+    <p class="meta" id="emptyNote">Henüz dergi eklenmedi.</p>
+    <div id="magList" class="mag-grid"></div>
+  </section>
+
+  <section id="iletisim" class="page">
+    <h2 class="section-title">İletişim Formu</h2>
+    <div class="card hero-pop">
+      <input id="contactName" placeholder="Ad Soyad" />
+      <input id="contactMail" type="email" placeholder="E-posta" />
+      <textarea id="contactMsg" placeholder="Mesajın"></textarea>
+      <button class="btn-primary" id="sendBtn">Gönder</button>
+      <p id="contactStatus" class="meta"></p>
+    </div>
+  </section>
+
+  <section id="giris" class="page centered-page">
+    <div class="card auth-animated" style="max-width:520px;width:100%;">
+      <div id="loginPanel">
+        <h2 class="section-title">Giriş Yap</h2>
+        <input id="loginUser" placeholder="Kullanıcı adı" />
+        <input id="loginMail" type="email" placeholder="E-posta" />
+        <input id="loginPass" type="password" placeholder="Şifre" />
+        <button class="btn-primary" id="doLogin">Giriş Yap</button>
+        <div id="loginOtpWrap" class="hidden">
+          <input id="loginOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
+          <button class="btn" id="verifyLoginOtp">Kodu Doğrula</button>
+        </div>
+        <p id="loginStatus" class="meta"></p>
+        <p class="meta">Hesabın yok mu? <button class="btn" id="gotoRegisterBtn" style="padding:6px 10px;">Hemen Kayıt Ol</button></p>
+      </div>
+
+      <div id="registerPanel" class="hidden">
+        <h2 class="section-title">Kayıt Ol</h2>
+        <input id="regUser" placeholder="Kullanıcı adı" />
+        <input id="regMail" type="email" placeholder="E-posta" />
+        <input id="regPass" type="password" placeholder="Şifre" />
+        <input id="regPassAgain" type="password" placeholder="Şifre (tekrar)" />
+        <button class="btn" id="doRegister">Kayıt Ol</button>
+        <div id="registerOtpWrap" class="hidden">
+          <input id="regOtpCode" placeholder="6 haneli doğrulama kodu" maxlength="6" />
+          <button class="btn" id="verifyRegisterOtp">Kodu Doğrula ve Hesabı Aç</button>
+        </div>
+        <p id="registerStatus" class="meta"></p>
+        <p class="meta">Zaten hesabın var mı? <button class="btn" id="gotoLoginBtn" style="padding:6px 10px;">Giriş Yap</button></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="profil" class="page">
+    <h2 class="section-title">Profilim</h2>
+    <div class="card" id="profileGuest"><p class="meta">Profil görmek için önce giriş yap.</p></div>
+    <div class="card hidden" id="profileCard">
+      <div id="profileAvatarLetter" class="avatar-letter">A</div>
+      <img id="profileAvatarImage" class="avatar-letter hidden" alt="Profil Fotoğrafı" style="object-fit:cover;padding:0" />
+      <h3 id="profileName" style="margin-top:0"></h3>
+      <p id="profileEmail" class="meta"></p>
+      <input id="profileImageFile" type="file" accept="image/png,image/jpeg,image/jpg" />
+      <button class="btn" id="changeProfileImageBtn">Profil Fotoğrafını Değiştir</button>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" id="logoutBtn">Çıkış Yap</button>
+        <button class="btn" id="deleteProfileBtn">Profili Sil</button>
+      </div>
+      <p id="profileStatus" class="meta"></p>
+    </div>
+  </section>
+</main>
+
+<footer>© <span id="year"></span> Aerodinamik Dergi — Modern kişisel vitrin sitesi.</footer>
 
 <script>
-/* --------------------------
-   Modern 2D solar-system
-   - procedural planet textures (no external images)
-   - starfield background
-   - time controls, modal with link
-   ---------------------------*/
+const ADMIN_USER="Ogeday1453",ADMIN_PASS="CAM.@7",CONTACT_TO="ogeday.durmus@gmail.com";
+const defaultHomeContent={brandHtml:"Aero<span>dinamik</span> Dergi",heroTitle:"Aerodinamik Dergi Vitrini",heroSubtitle:"Bu modern Türkçe sitede kendi yazdığın Aerodinamik dergilerini sergileyebilirsin.",storyText:"Aerodinamik, havacılık tutkusunu bilgiye dönüştüren bir dergi projesidir."};
+const state={isAdmin:false,currentUser:JSON.parse(localStorage.getItem("aero-current-user")||"null"),users:JSON.parse(localStorage.getItem("aero-users")||"[]"),magazines:JSON.parse(localStorage.getItem("aero-magazines")||"[]"),homeContent:JSON.parse(localStorage.getItem("aero-home-content")||"null")||defaultHomeContent,pendingOtp:null,pendingRegister:null,pendingLogin:null};
 
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d', { alpha: true });
-let DPR = Math.min(window.devicePixelRatio || 1, 2);
+const qs=id=>document.getElementById(id);
+const saveUsers=()=>localStorage.setItem("aero-users",JSON.stringify(state.users));
+const saveMagazines=()=>localStorage.setItem("aero-magazines",JSON.stringify(state.magazines));
+const saveCurrentUser=()=>localStorage.setItem("aero-current-user",JSON.stringify(state.currentUser));
+const saveHomeContent=()=>localStorage.setItem("aero-home-content",JSON.stringify(state.homeContent));
 
-function resize(){
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.floor(window.innerWidth * DPR);
-  canvas.height = Math.floor(window.innerHeight * DPR);
-  canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
-  ctx.setTransform(DPR,0,0,DPR,0,0);
+function switchPage(pageId){
+  if(pageId==="giris"&&state.currentUser){pageId="profil";}
+  if(pageId==="giris"){qs("registerPanel")?.classList.add("hidden");qs("loginPanel")?.classList.remove("hidden");}
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===pageId));
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===pageId));
+  document.body.classList.remove("page-menu","page-dergiler","page-iletisim","page-giris","page-profil");
+  document.body.classList.add(`page-${pageId}`);
 }
-window.addEventListener('resize', resize);
-resize();
+function updateLoginTab(){ qs("loginTab").classList.toggle("hidden",!!state.currentUser); }
 
-/* Starfield */
-const stars = [];
-const STAR_COUNT = Math.round((window.innerWidth*window.innerHeight)/40000);
-for(let i=0;i<STAR_COUNT;i++){
-  stars.push({
-    x: Math.random()*window.innerWidth,
-    y: Math.random()*window.innerHeight,
-    r: Math.random()*1.2 + 0.2,
-    a: Math.random()*0.9 + 0.1,
-    tw: Math.random()*0.02 + 0.002
+function renderHomeContent(){qs("brandText").innerHTML=state.homeContent.brandHtml;qs("heroTitle").textContent=state.homeContent.heroTitle;qs("heroSubtitle").textContent=state.homeContent.heroSubtitle;qs("storyText").textContent=state.homeContent.storyText;qs("editBrand").value=state.homeContent.brandHtml.replace(/<[^>]+>/g,"");qs("editHeroTitle").value=state.homeContent.heroTitle;qs("editHeroSub").value=state.homeContent.heroSubtitle;qs("editStory").value=state.homeContent.storyText;}
+
+function renderEngagementForAdmin(){
+  const box=qs("engagementList"); box.innerHTML=""; if(!state.isAdmin) return;
+  if(!state.magazines.length){box.innerHTML='<p class="meta">Henüz etkileşim yok.</p>';return;}
+  state.magazines.forEach(m=>{const d=document.createElement("div");d.className="list-item";d.innerHTML=`<strong>${m.title}</strong><div class="meta">Beğeni: ${(m.likes||[]).length}</div><div class="meta">Yorum: ${(m.comments||[]).length}</div>`;box.appendChild(d);});
+}
+
+function renderMagazines(){
+  const list=qs("magList"); list.innerHTML=""; qs("emptyNote").classList.toggle("hidden",state.magazines.length>0);
+  state.magazines.forEach((m,i)=>{
+    const liked=state.currentUser&&m.likes&&m.likes.includes(state.currentUser.user);
+    const c=document.createElement("article"); c.className="card";
+    c.innerHTML=`
+      <img class="mag-cover" src="${m.cover}" alt="${m.title} kapak" />
+      <h3 style="margin:0 0 6px">${m.title}</h3>
+      <p class="meta">${m.desc}</p>
+      ${m.pdf?`<details><summary>Dergi PDF Görüntüle</summary><iframe class="pdf-viewer" sandbox src="${m.pdf}#toolbar=0&navpanes=0&scrollbar=0"></iframe></details>`:""}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+        <button class="btn likeBtn" data-index="${i}">${liked?"❤️":"🤍"} Beğen (${(m.likes||[]).length})</button>
+        ${state.isAdmin?`<button class="btn deleteBtn" data-index="${i}">Dergiyi Kaldır</button>`:""}
+      </div>
+      <div class="comment-box">
+        <input class="commentInput" data-index="${i}" placeholder="Yorum yaz" />
+        <button class="btn commentBtn" data-index="${i}">Yorum Ekle</button>
+        <div>${(m.comments||[]).map(x=>`<div class='comment-item'><strong>${x.user}:</strong> ${x.text}</div>`).join("")}</div>
+      </div>`;
+    list.appendChild(c);
+  });
+
+  document.querySelectorAll('.deleteBtn').forEach(b=>b.onclick=()=>{if(!state.isAdmin)return;state.magazines.splice(Number(b.dataset.index),1);saveMagazines();renderMagazines();renderEngagementForAdmin();});
+  document.querySelectorAll('.likeBtn').forEach(b=>b.onclick=()=>{
+    if(!state.currentUser){alert('Beğenmek için giriş yap.');return;}
+    const i=Number(b.dataset.index),u=state.currentUser.user; state.magazines[i].likes=state.magazines[i].likes||[];
+    if(state.magazines[i].likes.includes(u)) state.magazines[i].likes=state.magazines[i].likes.filter(x=>x!==u); else state.magazines[i].likes.push(u);
+    saveMagazines();renderMagazines();renderEngagementForAdmin();
+  });
+  document.querySelectorAll('.commentBtn').forEach(b=>b.onclick=()=>{
+    if(!state.currentUser){alert('Yorum için giriş yap.');return;}
+    const i=Number(b.dataset.index),inp=document.querySelector(`.commentInput[data-index='${i}']`),txt=inp.value.trim(); if(!txt)return;
+    state.magazines[i].comments=state.magazines[i].comments||[]; state.magazines[i].comments.push({user:state.currentUser.user,text:txt});
+    saveMagazines();renderMagazines();renderEngagementForAdmin();
   });
 }
 
-/* time */
-let year=2000, month=1, day=1;
-const timeBox = document.getElementById('timeBox');
-function formatTime(){ return `${year} / ${String(month).padStart(2,'0')} / ${String(Math.floor(day)).padStart(2,'0')}`; }
-timeBox.textContent = formatTime();
+function renderUsersForAdmin(){
+  const box=qs("usersList"); box.innerHTML=""; if(!state.isAdmin)return;
+  if(!state.users.length){box.innerHTML='<p class="meta">Henüz kayıtlı kullanıcı yok.</p>';return;}
+  state.users.forEach(u=>{const d=document.createElement("div");d.className="list-item";d.innerHTML=`<strong>${u.user}</strong><div class="meta">E-posta: ${u.email}</div><div class="meta">Son giriş: ${u.lastLogin||"-"}</div><button class='btn rmUser' data-user='${u.user}'>Profili Sil</button>`;box.appendChild(d);});
+  document.querySelectorAll('.rmUser').forEach(b=>b.onclick=()=>{const un=b.dataset.user;state.users=state.users.filter(u=>u.user!==un);saveUsers();renderUsersForAdmin();});
+}
 
-/* planets definitions (scaled for view) */
-const sun = { name:'Güneş', r:52, color:'#ffeb99', wiki:'https://tr.wikipedia.org/wiki/Güneş', info:'Güneş, Güneş Sistemi’nin merkezinde yer alan yıldızdır.' };
-const planets = [
-  { name:'Merkür', r:6, a:70, speed:0.043, color:'#b6b6b6', wiki:'https://tr.wikipedia.org/wiki/Merkür', info:'Merkür, küçük ve kayalık.' },
-  { name:'Venüs', r:11, a:100, speed:0.035, color:'#f2c27b', wiki:'https://tr.wikipedia.org/wiki/Venüs', info:'Venüs; sıcak, kalın atmosferi ile bilinir.' },
-  { name:'Dünya', r:13, a:140, speed:0.025, color:'#4aa3ff', wiki:'https://tr.wikipedia.org/wiki/Dünya', info:'Dünya, yaşam barındıran gezegenimiz.' },
-  { name:'Mars', r:10, a:180, speed:0.019, color:'#e05a4b', wiki:'https://tr.wikipedia.org/wiki/Mars', info:'Mars, kırmızı topraklarıyla meşhurdur.' },
-  { name:'Jüpiter', r:28, a:240, speed:0.01, color:'#f1b06d', wiki:'https://tr.wikipedia.org/wiki/Jüpiter', info:'Jüpiter, en büyük gezegendir.' },
-  { name:'Satürn', r:24, a:300, speed:0.007, color:'#efd59a', wiki:'https://tr.wikipedia.org/wiki/Satürn', info:'Satürn, belirgin halkalarıyla ünlüdür.', ring:true },
-  { name:'Uranüs', r:20, a:360, speed:0.005, color:'#9fe0ff', wiki:'https://tr.wikipedia.org/wiki/Uranüs', info:'Uranüs, eğik ekseniyle dikkat çeker.' },
-  { name:'Neptün', r:18, a:420, speed:0.004, color:'#638dff', wiki:'https://tr.wikipedia.org/wiki/Neptün', info:'Neptün, uzak ve soğuk bir gaz devidir.' }
-];
+function syncAdminView(){qs("adminOnly").classList.toggle("hidden",!state.isAdmin);qs("magSectionTitle").textContent=state.isAdmin?"Dergilerim":"Dergiler";renderUsersForAdmin();renderEngagementForAdmin();}
+function syncProfileView(){
+  const guest=qs("profileGuest"),card=qs("profileCard"),avatarLetter=qs("profileAvatarLetter"),avatarImage=qs("profileAvatarImage");
+  guest.classList.toggle("hidden",!!state.currentUser); card.classList.toggle("hidden",!state.currentUser);
+  if(!state.currentUser)return;
+  qs("profileName").textContent=state.currentUser.user; qs("profileEmail").textContent=`E-posta: ${state.currentUser.email||"-"}`;
+  if(state.currentUser.profileImage){
+    avatarImage.src=state.currentUser.profileImage; avatarImage.classList.remove("hidden"); avatarLetter.classList.add("hidden");
+  }else{
+    avatarLetter.textContent=(state.currentUser.user||"A").charAt(0).toUpperCase(); avatarLetter.classList.remove("hidden"); avatarImage.classList.add("hidden");
+  }
+}
 
-/* add fixed start angles for 2000-01-01 */
-const initialAngles2000 = {
-  'Merkür': 1.15,   // ~66°
-  'Venüs': 5.99,    // ~343°
-  'Dünya': 4.89,    // ~280°
-  'Mars': 2.11,     // ~121°
-  'Jüpiter': 2.79,  // ~160°
-  'Satürn': 2.34,   // ~134°
-  'Uranüs': 5.16,   // ~296°
-  'Neptün': 5.40    // ~309°
+function sendOtpToEmail(email){const code=String(Math.floor(100000+Math.random()*900000));state.pendingOtp={code,email,exp:Date.now()+5*60*1000};return code;}
+function checkOtp(code,email){if(!state.pendingOtp)return{ok:false,reason:"Önce kod iste."};if(Date.now()>state.pendingOtp.exp)return{ok:false,reason:"Kod süresi doldu."};if(state.pendingOtp.email!==email)return{ok:false,reason:"Kod e-posta ile uyuşmuyor."};if(state.pendingOtp.code!==code)return{ok:false,reason:"Kod hatalı."};return{ok:true};}
+
+// events
+Array.from(document.querySelectorAll('.tab-btn')).forEach(b=>b.addEventListener('click',()=>switchPage(b.dataset.page)));
+qs("themeBtn").onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('aero-theme',document.body.classList.contains('dark')?'dark':'light');};
+qs("gotoRegisterBtn").onclick=()=>{qs("loginPanel").classList.add("hidden");qs("registerPanel").classList.remove("hidden");};
+qs("gotoLoginBtn").onclick=()=>{qs("registerPanel").classList.add("hidden");qs("loginPanel").classList.remove("hidden");};
+
+qs("doRegister").onclick=()=>{
+  const user=qs("regUser").value.trim(),email=qs("regMail").value.trim(),pass=qs("regPass").value.trim(),pass2=qs("regPassAgain").value.trim(),out=qs("registerStatus");
+  const rx=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/; if(!user||!email||!pass||!pass2){out.textContent='Tüm alanlar zorunlu.';return;} if(!rx.test(email)){out.textContent='Geçerli bir e-posta gir.';return;} if(pass!==pass2){out.textContent='Şifreler eşleşmiyor.';return;} if(state.users.some(u=>u.user===user)||user===ADMIN_USER){out.textContent='Bu kullanıcı adı kullanılıyor.';return;}
+  state.pendingRegister={user,email,pass}; const code=sendOtpToEmail(email); qs("registerOtpWrap").classList.remove('hidden'); out.textContent=`6 haneli kod gönderildi. (Demo kod: ${code})`;
 };
-planets.forEach(p => {
-  p.angle = initialAngles2000[p.name] || 0;
-});
+qs("verifyRegisterOtp").onclick=()=>{
+  const out=qs("registerStatus"),code=qs("regOtpCode").value.trim(); if(!state.pendingRegister){out.textContent='Önce kayıt formunu doldur.';return;}
+  const chk=checkOtp(code,state.pendingRegister.email); if(!chk.ok){out.textContent=chk.reason;return;}
+  const u={user:state.pendingRegister.user,email:state.pendingRegister.email,pass:state.pendingRegister.pass,lastLogin:new Date().toLocaleString('tr-TR')}; state.users.push(u); saveUsers();
+  state.currentUser={user:u.user,email:u.email,isAdmin:false,profileImage:null}; saveCurrentUser(); state.pendingRegister=null; state.pendingOtp=null; qs("registerOtpWrap").classList.add('hidden');
+  out.textContent='Kayıt tamamlandı ve otomatik giriş yapıldı.'; updateLoginTab(); syncProfileView(); switchPage('profil');
+};
 
-/* UI controls */
-const toggle = document.getElementById('toggle');
-const slow = document.getElementById('slow');
-const norm = document.getElementById('norm');
-const fast = document.getElementById('fast');
-const speedLbl = document.getElementById('speedLbl');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-const modalText = document.getElementById('modalText');
-const modalWiki = document.getElementById('modalWiki');
-const modalClose = document.getElementById('modalClose');
+qs("doLogin").onclick=()=>{
+  const user=qs("loginUser").value.trim(),email=qs("loginMail").value.trim(),pass=qs("loginPass").value.trim(),out=qs("loginStatus");
+  if(user===ADMIN_USER&&pass===ADMIN_PASS&&email===CONTACT_TO){state.pendingLogin={admin:true,email}; const code=sendOtpToEmail(email); qs("loginOtpWrap").classList.remove('hidden'); out.textContent=`Admin OTP kodu gönderildi. (Demo kod: ${code})`; return;}
+  const idx=state.users.findIndex(u=>u.user===user&&u.email===email&&u.pass===pass); if(idx<0){out.textContent='Kullanıcı adı / e-posta / şifre hatalı.';return;}
+  state.pendingLogin={admin:false,idx,email}; const code=sendOtpToEmail(email); qs("loginOtpWrap").classList.remove('hidden'); out.textContent=`Giriş OTP kodu gönderildi. (Demo kod: ${code})`;
+};
+qs("verifyLoginOtp").onclick=()=>{
+  const out=qs("loginStatus"),code=qs("loginOtpCode").value.trim(); if(!state.pendingLogin){out.textContent='Önce giriş bilgilerini gir.';return;}
+  const chk=checkOtp(code,state.pendingLogin.email); if(!chk.ok){out.textContent=chk.reason;return;}
+  if(state.pendingLogin.admin){state.isAdmin=true; state.currentUser={user:ADMIN_USER,email:CONTACT_TO,isAdmin:true,profileImage:null};}
+  else{state.isAdmin=false; const i=state.pendingLogin.idx; state.users[i].lastLogin=new Date().toLocaleString('tr-TR'); saveUsers(); state.currentUser={user:state.users[i].user,email:state.users[i].email,isAdmin:false,profileImage:state.users[i].profileImage||null};}
+  saveCurrentUser(); state.pendingLogin=null; state.pendingOtp=null; qs("loginOtpWrap").classList.add('hidden'); out.textContent='Giriş başarılı.'; updateLoginTab(); syncAdminView(); syncProfileView(); switchPage('profil');
+};
 
-let running = true;
-let speedMultiplier = 1;
-let lastTick = performance.now();
+qs("addMagBtn").onclick=()=>{
+  if(!state.isAdmin) return; const t=qs("magTitle").value.trim(),cf=qs("magCover").files[0],pf=qs("magPdf").files[0],d=qs("magDesc").value.trim();
+  if(!t||!cf||!d){alert('Başlık, kapak ve açıklama zorunlu.');return;}
+  const read=file=>new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(file);});
+  Promise.all([read(cf),pf?read(pf):Promise.resolve("")]).then(([cover,pdf])=>{state.magazines.unshift({title:t,cover,desc:d,pdf,likes:[],comments:[]});saveMagazines();renderMagazines();renderEngagementForAdmin();switchPage('dergiler');});
+};
 
-toggle.addEventListener('click', () => {
-  running = !running;
-  toggle.textContent = running ? 'Durdur' : 'Başlat';
-});
+qs("saveHomeContentBtn").onclick=()=>{if(!state.isAdmin)return;const b=qs("editBrand").value.trim()||"Aerodinamik Dergi";state.homeContent.brandHtml=b.replace("dinamik","<span>dinamik</span>");state.homeContent.heroTitle=qs("editHeroTitle").value.trim()||defaultHomeContent.heroTitle;state.homeContent.heroSubtitle=qs("editHeroSub").value.trim()||defaultHomeContent.heroSubtitle;state.homeContent.storyText=qs("editStory").value.trim()||defaultHomeContent.storyText;saveHomeContent();renderHomeContent();};
 
-slow.addEventListener('click', ()=> setSpeed(0.5));
-norm.addEventListener('click', ()=> setSpeed(1));
-fast.addEventListener('click', ()=> setSpeed(2));
-function setSpeed(v){ speedMultiplier = v; speedLbl.textContent = v + '×'; }
-
-/* make a procedural texture for planets using Offscreen canvas (or hidden canvas) */
-function makePlanetPattern(color, size){
-  const c = document.createElement('canvas');
-  c.width = c.height = size*2;
-  const g = c.getContext('2d');
-  // base radial
-  const rg = g.createRadialGradient(size, size, size*0.1, size, size, size);
-  rg.addColorStop(0, lighten(color,0.18));
-  rg.addColorStop(0.6, color);
-  rg.addColorStop(1, darken(color,0.12));
-  g.fillStyle = rg;
-  g.fillRect(0,0,c.width,c.height);
-
-  // add subtle noise dots
-  for(let i=0;i<250;i++){
-    const x = Math.random()*c.width;
-    const y = Math.random()*c.height;
-    const r = Math.random()*1.6;
-    g.fillStyle = 'rgba(255,255,255,' + (Math.random()*0.06) + ')';
-    g.beginPath(); g.arc(x,y,r,0,Math.PI*2); g.fill();
-  }
-  // slight overlay bands (for gas giants)
-  for(let i=0;i<3;i++){
-    g.fillStyle = hexToRgba(darken(color, 0.08 + i*0.02), 0.06);
-    g.fillRect(0, Math.floor(c.height*(0.2 + i*0.25)), c.width, Math.floor(c.height*0.08));
-  }
-
-  return g.createPattern(c, 'no-repeat');
-}
-
-/* small color helpers */
-function hexToRgb(hex){
-  const h = hex.replace('#','');
-  return { r: parseInt(h.substring(0,2),16), g: parseInt(h.substring(2,4),16), b: parseInt(h.substring(4,6),16) };
-}
-function rgbToHex(r,g,b){ return '#' + [r,g,b].map(v=>Math.max(0,Math.min(255, Math.round(v))).toString(16).padStart(2,'0')).join(''); }
-function lighten(hex, amount){
-  const c = hexToRgb(hex); return rgbToHex(c.r + 255*amount, c.g + 255*amount, c.b + 255*amount);
-}
-function darken(hex, amount){
-  const c = hexToRgb(hex); return rgbToHex(c.r*(1-amount), c.g*(1-amount), c.b*(1-amount));
-}
-function hexToRgba(hex,a){
-  const c=hexToRgb(hex); return `rgba(${c.r},${c.g},${c.b},${a})`;
-}
-
-/* prepare patterns */
-planets.forEach(p=>{
-  p.pattern = makePlanetPattern(p.color, Math.max(64, p.r*12));
-});
-
-/* star twinkle update */
-function updateStars(dt){
-  for(const s of stars){
-    s.a += s.tw * dt * 0.06;
-    if(s.a > 1.0) s.a = 0.1;
-  }
-}
-
-/* draw frame */
-function draw(now){
-  const dt = Math.min((now - lastTick)/16.666, 4); // rough frame multiplier
-  lastTick = now;
-
-  // background gradient
-  const w = window.innerWidth, h = window.innerHeight;
-  const bg = ctx.createLinearGradient(0,0,0,h);
-  bg.addColorStop(0,'#000010');
-  bg.addColorStop(1,'#000814');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0,0,w,h);
-
-  // stars
-  ctx.save();
-  for(const s of stars){
-    ctx.beginPath();
-    ctx.globalAlpha = s.a;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(s.x, s.y, s.r, s.r);
-  }
-  ctx.globalAlpha = 1;
-  ctx.restore();
-
-  // center of system
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
-
-  // draw orbits
-  ctx.save();
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  for(const p of planets){
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, p.a, p.a, 0, 0, Math.PI*2);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // sun glow
-  const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, sun.r*4);
-  sunGlow.addColorStop(0,'rgba(255,235,150,0.25)');
-  sunGlow.addColorStop(1,'rgba(255,235,150,0)');
-  ctx.fillStyle = sunGlow; ctx.beginPath(); ctx.arc(cx, cy, sun.r*4, 0, Math.PI*2); ctx.fill();
-
-  // draw sun
-  ctx.beginPath(); ctx.fillStyle = sun.color; ctx.arc(cx,cy,sun.r,0,Math.PI*2); ctx.fill();
-
-  // planets
-  for(const p of planets){
-    // orbit movement
-    p.angle += (running ? p.speed * speedMultiplier * 0.5 * dt : 0);
-
-    const x = cx + p.a * Math.cos(p.angle);
-    const y = cy + p.a * Math.sin(p.angle);
-    p.x = x; p.y = y;
-
-    // draw planet with pattern, add subtle shadow
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(x, y, p.r, 0, Math.PI*2);
-    ctx.closePath();
-    ctx.fillStyle = p.pattern;
-    ctx.fill();
-
-    // highlight
-    const grad = ctx.createRadialGradient(x - p.r*0.4, y - p.r*0.4, p.r*0.12, x, y, p.r);
-    grad.addColorStop(0,'rgba(255,255,255,0.5)');
-    grad.addColorStop(0.6,'rgba(255,255,255,0.08)');
-    grad.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(x,y,p.r,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-
-    // ring for Saturn (tilted)
-    if(p.ring){
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(x, y, p.r*2.1, p.r*0.7, Math.PI/5, 0, Math.PI*2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
+qs("changeProfileImageBtn").onclick=()=>{
+  if(!state.currentUser){return;}
+  const file=qs("profileImageFile").files[0];
+  if(!file){qs("profileStatus").textContent='Önce bir PNG/JPG seç.';return;}
+  const ok=["image/png","image/jpeg","image/jpg"].includes(file.type);
+  if(!ok){qs("profileStatus").textContent='Sadece PNG/JPG yükleyebilirsin.';return;}
+  const r=new FileReader();
+  r.onload=()=>{
+    state.currentUser.profileImage=r.result;
+    if(!state.currentUser.isAdmin){
+      const i=state.users.findIndex(u=>u.user===state.currentUser.user);
+      if(i>=0){state.users[i].profileImage=r.result;saveUsers();}
     }
-  }
+    saveCurrentUser();
+    syncProfileView();
+    qs("profileStatus").textContent='Profil fotoğrafı güncellendi.';
+    qs("profileImageFile").value='';
+  };
+  r.readAsDataURL(file);
+};
 
-  // update time if running
-  if(running){
-    // advance day by fraction depending on speedMultiplier & dt
-    day += (0.5 * speedMultiplier * dt); // tweak: bigger = faster calendar advance
-    if(day > 30){
-      day = day - 30;
-      month += 1;
-      if(month > 12){ month = 1; year += 1; }
-    }
-    timeBox.textContent = formatTime();
-  }
+qs("logoutBtn").onclick=()=>{state.currentUser=null;state.isAdmin=false;localStorage.removeItem("aero-current-user");updateLoginTab();syncAdminView();syncProfileView();switchPage('menu');};
+qs("deleteProfileBtn").onclick=()=>{if(!state.currentUser||state.currentUser.isAdmin){qs("profileStatus").textContent='Admin profili bu butondan silinemez.';return;}state.users=state.users.filter(u=>u.user!==state.currentUser.user);saveUsers();state.currentUser=null;localStorage.removeItem('aero-current-user');updateLoginTab();syncProfileView();switchPage('menu');};
 
-  updateStars(dt);
+qs("sendBtn").onclick=()=>{const n=qs("contactName").value.trim(),m=qs("contactMail").value.trim(),msg=qs("contactMsg").value.trim(),out=qs("contactStatus");if(!n||!m||!msg){out.textContent='Lütfen tüm alanları doldur.';return;}window.location.href=`mailto:${CONTACT_TO}?subject=${encodeURIComponent('Site İletişim - '+n)}&body=${encodeURIComponent(`Ad:${n}\nE-posta:${m}\n\n${msg}`)}`;out.textContent=`Mesaj ${CONTACT_TO} adresine yönlendirildi.`;};
 
-  requestAnimationFrame(draw);
-}
+// anti-copy deterrence (not absolute)
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('copy',e=>e.preventDefault());
+document.addEventListener('cut',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if((e.ctrlKey&&(e.key==='c'||e.key==='s'||e.key==='p'))||e.key==='PrintScreen'){e.preventDefault();}});
 
-/* click to open modal + link */
-canvas.addEventListener('click', (ev) => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = (ev.clientX - rect.left);
-  const my = (ev.clientY - rect.top);
-  const cx = window.innerWidth/2, cy = window.innerHeight/2;
-
-  // check sun
-  const dSun = Math.hypot(mx - cx, my - cy);
-  if(dSun <= sun.r){
-    openModal(sun.name, sun.info, sun.wiki);
-    return;
-  }
-
-  for(const p of planets){
-    const d = Math.hypot(mx - p.x, my - p.y);
-    if(d <= p.r + 2){
-      openModal(p.name, p.info, p.wiki);
-      return;
-    }
-  }
-});
-
-function openModal(title, text, wiki){
-  modalTitle.textContent = title;
-  modalText.textContent = text;
-  modalWiki.href = wiki;
-  modal.style.display = 'block';
-  modal.style.transform = 'translate(-50%,-50%) scale(1)';
-}
-modalClose.addEventListener('click', ()=>{ modal.style.display = 'none'; });
-
-/* keyboard shortcuts */
-window.addEventListener('keydown', (e) => {
-  if(e.key === ' '){ running = !running; toggle.textContent = running ? 'Durdur' : 'Başlat'; }
-  if(e.key === '+' || e.key === '=') setSpeed(Math.min(2, speedMultiplier + 0.5));
-  if(e.key === '-') setSpeed(Math.max(0.5, speedMultiplier - 0.5));
-});
-
-/* start rendering */
-requestAnimationFrame(draw);
-
-/* initialize labels */
-speedLbl.textContent = speedMultiplier + '×';
-
-/* helpful functions done earlier exist above (hexToRgb etc.) */
-
-/* Keep modal hidden on first load */
-modal.style.display = 'none';
+document.getElementById("year").textContent=new Date().getFullYear();
+if(localStorage.getItem('aero-theme')==='dark')document.body.classList.add('dark');
+if(state.currentUser&&state.currentUser.user===ADMIN_USER)state.isAdmin=true;
+renderHomeContent();renderMagazines();syncAdminView();syncProfileView();updateLoginTab();switchPage('menu');
 </script>
 </body>
 </html>
